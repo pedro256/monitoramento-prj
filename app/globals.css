@@ -1,36 +1,130 @@
-/* @tailwind base;/%
-@tailwind components;
-@tailwind utilities; */
-
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
-@custom-variant dark (&:is(.dark *));
 
 @layer base {
   :root {
+    /* Base */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-    /* ... demais variáveis do Shadcn */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Cores de Ação */
+    --primary: 160 84% 39%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    /* Estados */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+    --success: 142 71% 45%;
+
+    /* TEXTO: Escala de Contraste */
+    --text-primary: 0 0% 98%;      /* Títulos e informações críticas (Branco puro) */
+    --text-secondary: 0 0% 88%;    /* Textos de leitura e labels importantes */
+    --text-muted: 0 0% 65%;       /* Descrições, timestamps, "padrão terminal" */
+    --text-dim: 0 0% 45%;         /* Notas de rodapé, IDs de sistema, decorativos */
+    /* TEXTO COM COR (Para telemetria) */
+    --text-accent: 160 84% 39%;   /* Destaques em verde/primary */
+
+    /* Interface */
+    --border: 214.3 31.8% 91.4%;
+    --border-100: 96.7% 0.003 264.542;
+    --border-200: 92.8% 0.006 264.531;
+    --border-300: 87.2% 0.01 258.338;
+    --border-400: 70.7% 0.022 261.325;
+    --border-500: 55.1% 0.027 264.364;
+    --border-600: 44.6% 0.03 256.802;
+    --border-700: 37.3% 0.034 259.733;
+    --border-800: 27.8% 0.033 256.848;
+    --border-900: 21% 0.034 264.665;
+    --border-950: 13% 0.028 261.692;
+
+
+    --input: 214.3 31.8% 91.4%;
+    --ring: 160 84% 39%;
     --radius: 0.5rem;
   }
+
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    /* ... */
+    /* FUNDOS: Dark Profundo Industrial */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+
+    /* ACENTOS: Emerald/Cyan */
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 191 91% 50%;
+    --secondary-foreground: 0 0% 0%;
+
+    /* ESTADOS */
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+    --success: 142 71% 45%;
+
+
+    /* TEXTO */
+    /* TEXTO: Escala de Contraste */
+    --text-primary: 0 0% 98%;      /* Títulos e informações críticas (Branco puro) */
+    --text-secondary: 0 0% 88%;    /* Textos de leitura e labels importantes */
+    --text-muted: 0 0% 65%;       /* Descrições, timestamps, "padrão terminal" */
+    --text-dim: 0 0% 45%;         /* Notas de rodapé, IDs de sistema, decorativos */
+    /* TEXTO COM COR (Para telemetria) */
+    --text-accent: 160 84% 39%;   /* Destaques em verde/primary */
+
+    /* BORDAS E INPUTS */
+    --border: 0 0% 15%;
+    --border-100: 13% 0.028 261.692; /* Invertido para o Dark */
+    --border-200: 21% 0.034 264.665;
+    --border-300: 27.8% 0.033 256.848;
+    --border-400: 37.3% 0.034 259.733;
+    --border-500: 44.6% 0.03 256.802;
+    --border-600: 55.1% 0.027 264.364;
+    --border-700: 70.7% 0.022 261.325;
+    --border-800: 87.2% 0.01 258.338;
+    --border-900: 92.8% 0.006 264.531;
+    --border-950: 96.7% 0.003 264.542;
+
+
+
+    --input: 0 0% 12%;
+    --ring: 160 84% 39%;
+
+    /* GRÁFICOS (Mapeamento para Recharts/Charts) */
+    --chart-1: 160 84% 39%;
+    --chart-2: 191 91% 50%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 280 65% 60%;
   }
 }
 
-@theme {
-  /* Gradientes Customizados */
-  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
-  --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
-
-  /* Border Radius baseado nas suas variáveis CSS */
+@theme inline {
+  /* Border Radius */
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  /* Cores do Sistema (Shadcn) */
+  /* Mapeamento Semântico de Cores */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
@@ -55,27 +149,49 @@
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-success: hsl(var(--success));
+
+  /*BORDAS*/
   --color-border: hsl(var(--border));
+  --color-border-100: oklch(var(--border-100));
+  --color-border-200: oklch(var(--border-200));
+  --color-border-300: oklch(var(--border-300));
+  --color-border-400: oklch(var(--border-400));
+  --color-border-500: oklch(var(--border-500));
+  --color-border-600: oklch(var(--border-600));
+  --color-border-700: oklch(var(--border-700));
+  --color-border-800: oklch(var(--border-800));
+  --color-border-900: oklch(var(--border-900));
+  --color-border-950: oklch(var(--border-950));
+  /*TEXTO*/
+  --color-text-base: hsl(var(--text-primary));
+  --color-text-secondary: hsl(var(--text-secondary));
+  --color-text-muted: hsl(var(--text-muted));
+  --color-text-dim: hsl(var(--text-dim));
+
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
 
-  /* Gráficos */
+  /* Cores de Gráficos */
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
 
-  /* Animações e Keyframes */
-  /* --keyframes-accordion-down: {
+  /* Animações (Shadcn padrão) */
+  @keyframes accordion-down {
     from { height: 0; }
     to { height: var(--radix-accordion-content-height); }
-  };
-  --keyframes-accordion-up: {
+  }
+  @keyframes accordion-up {
     from { height: var(--radix-accordion-content-height); }
     to { height: 0; }
-  }; */
-
+  }
   --animation-accordion-down: accordion-down 0.2s ease-out;
   --animation-accordion-up: accordion-up 0.2s ease-out;
 }
+
+@custom-variant dark (&:is(.dark *));
