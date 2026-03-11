@@ -168,7 +168,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="h-16">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width={300}>
                       <LineChart data={machine.chartData}>
                         <Line
                           type="monotone"
