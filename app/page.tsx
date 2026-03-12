@@ -1,20 +1,25 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.push('/dashboard');
-  }, [router]);
-
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-gray-400">Carregando Dashboard...</p>
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div>
+        <p>APP</p>
+        <ul>
+          <li>
+            <Link href="/register">Cadastrar</Link>
+          </li>
+          <li>
+            <Link href="/auth">Login</Link>
+          </li>
+          <li>
+            <Link href="/dashboard">Dashboard</Link>
+          </li>
+        </ul>
       </div>
     </div>
   );

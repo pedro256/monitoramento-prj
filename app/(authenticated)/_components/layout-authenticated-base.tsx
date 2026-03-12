@@ -14,15 +14,16 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { signOut } from "next-auth/react";
 
 const navigation = [
   { name: "Visão Geral", href: "/dashboard", icon: Home },
-  { name: "Dispositivos", href: "/dashboard/devices", icon: Cpu },
-  { name: "Monitoramento", href: "/dashboard/monitoring", icon: Activity },
-  { name: "Configurações", href: "/dashboard/settings", icon: Settings },
+  { name: "Dispositivos", href: "/devices", icon: Cpu },
+  { name: "Monitoramento", href: "/monitoring", icon: Activity },
+  { name: "Configurações", href: "/settings", icon: Settings },
 ];
 
-export default function DashboardLayout({
+export default function LayoutAuthenticatedBase({
   children,
 }: {
   children: React.ReactNode;
@@ -45,7 +46,7 @@ export default function DashboardLayout({
                 <Cpu className="w-6 h-6 text-gray-900" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                IndustryOS
+                Sistema
               </span>
             </div>
             <button
@@ -79,15 +80,9 @@ export default function DashboardLayout({
             })}
           </nav>
 
-          <div className="p-4 border-t border-gray-800">
-            <div className="bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20 rounded-lg p-4">
-              <p className="text-xs text-gray-400 mb-1">Status do Sistema</p>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-emerald-400">
-                  Operacional
-                </span>
-              </div>
+          <div className="p-4 border-t border-border">
+            <div className="hover:bg-destructive border border-destructive rounded-lg p-2" onClick={()=>signOut()}>
+              <p className="text-xs text-muded hover:text-destructive-foreground mb-1 text-center">SAIR</p>
             </div>
           </div>
         </div>
@@ -119,9 +114,7 @@ export default function DashboardLayout({
           </div>
         </header>
         <main className="p-6 flex-1 overflow-y-auto">
-          <div>
-            {children}
-          </div>
+          <div>{children}</div>
         </main>
       </div>
 

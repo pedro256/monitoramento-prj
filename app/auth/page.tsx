@@ -21,6 +21,8 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import LoadingIco from "@/components/loading-ico";
+import { signIn } from "next-auth/react"
+
 
 const loginSchema = z.object({
   email: z.string().email("Protocolo de e-mail inválido"),
@@ -38,14 +40,21 @@ export default function TechLoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof loginSchema>) {
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true);
 
-    // Simulação de autenticação
-    setTimeout(() => {
-      console.log("Autenticação solicitada:", values);
-      setIsSubmitting(false);
-    }, 2000);
+    await signIn("credentials", {
+      email:values.email,
+      password:values.password,
+      redirect: true,
+      callbackUrl: "/dashboard",
+    });
+
+    // // Simulação de autenticação
+    // setTimeout(() => {
+    //   console.log("Autenticação solicitada:", values);
+    //   setIsSubmitting(false);
+    // }, 2000);
   }
 
   return (
@@ -64,10 +73,7 @@ export default function TechLoginPage() {
 
         <CardContent className="pt-8">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-5"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               {/* EMAIL */}
               <FormField
                 control={form.control}
@@ -164,7 +170,7 @@ export default function TechLoginPage() {
                   Não possui acesso?
                 </div>
 
-                <Link className="text-link" href="/auth/register">
+                <Link className="text-link" href="/register">
                   Criar conta
                 </Link>
               </div>

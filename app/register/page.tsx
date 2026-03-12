@@ -28,7 +28,6 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import LoadingIco from "@/components/loading-ico";
-
 const registerSchema = z
   .object({
     name: z.string().min(2, "Identificação mínima requerida"),
@@ -49,13 +48,26 @@ export default function TechRegisterPage() {
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
-  function onSubmit(values: z.infer<typeof registerSchema>) {
+  async function onSubmit(values: z.infer<typeof registerSchema>) {
     setIsSubmitting(true);
     // Simulando uplink de dados
-    setTimeout(() => {
-      console.log("Credenciais transmitidas:", values);
-      setIsSubmitting(false);
-    }, 2000);
+    await fetch("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      }),
+    }).finally(()=>{
+       setIsSubmitting(false);
+    }).catch((e)=>{
+      console.error("error: ",e)
+    })
+
+    // setTimeout(() => {
+    //   console.log("Credenciais transmitidas:", values);
+    //   setIsSubmitting(false);
+    // }, 2000);
   }
 
   return (
@@ -181,7 +193,7 @@ export default function TechRegisterPage() {
                 {isSubmitting ? (
                   <span className="flex items-center gap-2 text-text-primary">
                     <div className="w-4 h-4">
-                      <LoadingIco/>
+                      <LoadingIco />
                     </div>
                     Salvando...
                   </span>
@@ -193,7 +205,10 @@ export default function TechRegisterPage() {
               </Button>
 
               <div className="pt-4 flex justify-center items-center text-sm text-text-secondary gap-2">
-                <div className="flex items-center gap-1">Ja tem Cadastro?</div> <Link className="text-link" href="/auth">Acesse Aqui!</Link>
+                <div className="flex items-center gap-1">Ja tem Cadastro?</div>{" "}
+                <Link className="text-link" href="/auth">
+                  Acesse Aqui!
+                </Link>
               </div>
             </form>
           </Form>

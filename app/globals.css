@@ -82,9 +82,31 @@
 
     /* ACENTOS: Emerald/Cyan */
     --primary: 160 84% 39%;
-    --primary-foreground: 0 0% 100%;
+    --primary-50: 160 84% 92%;
+    --primary-100: 160 84% 85%;
+    --primary-200: 160 84% 75%;
+    --primary-300: 160 84% 65%;
+    --primary-400: 160 84% 52%;
+    --primary-500: 160 84% 39%; /* base */
+    --primary-600: 160 84% 32%;
+    --primary-700: 160 84% 26%;
+    --primary-800: 160 84% 20%;
+    --primary-900: 160 84% 14%;
+    --primary-950: 160 84% 9%;
+    --primary-foreground: 160 84% 92%;
     --secondary: 191 91% 50%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary-50: 191 91% 95%;
+    --secondary-100: 191 91% 88%;
+    --secondary-200: 191 91% 78%;
+    --secondary-300: 191 91% 68%;
+    --secondary-400: 191 91% 58%;
+    --secondary-500: 191 91% 50%; /* base */
+    --secondary-600: 191 91% 42%;
+    --secondary-700: 191 91% 34%;
+    --secondary-800: 191 91% 26%;
+    --secondary-900: 191 91% 18%;
+    --secondary-950: 191 91% 12%;
+    --secondary-foreground: 191 91% 95%;
 
     /* ESTADOS */
     --muted: 0 0% 12%;
@@ -184,9 +206,31 @@
 
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-50: hsl(var(--primary-50));
+  --color-primary-100: hsl(var(--primary-100));
+  --color-primary-200: hsl(var(--primary-200));
+  --color-primary-300: hsl(var(--primary-300));
+  --color-primary-400: hsl(var(--primary-400));
+  --color-primary-500: hsl(var(--primary-500));
+  --color-primary-600: hsl(var(--primary-600));
+  --color-primary-700: hsl(var(--primary-700));
+  --color-primary-800: hsl(var(--primary-800));
+  --color-primary-900: hsl(var(--primary-900));
+  --color-primary-950: hsl(var(--primary-950));
 
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-50: hsl(var(--secondary-50));
+  --color-secondary-100: hsl(var(--secondary-100));
+  --color-secondary-200: hsl(var(--secondary-200));
+  --color-secondary-300: hsl(var(--secondary-300));
+  --color-secondary-400: hsl(var(--secondary-400));
+  --color-secondary-500: hsl(var(--secondary-500));
+  --color-secondary-600: hsl(var(--secondary-600));
+  --color-secondary-700: hsl(var(--secondary-700));
+  --color-secondary-800: hsl(var(--secondary-800));
+  --color-secondary-900: hsl(var(--secondary-900));
+  --color-secondary-950: hsl(var(--secondary-950));
 
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
