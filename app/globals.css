@@ -2,6 +2,8 @@
 @plugin "tailwindcss-animate";
 
 @layer base {
+
+  /**CORES E PALETA**/
   :root {
     /* Base */
     --background: 0 0% 100%;
@@ -29,12 +31,26 @@
     --success: 142 71% 45%;
 
     /* TEXTO: Escala de Contraste */
-    --text-primary: 0 0% 98%;      /* Títulos e informações críticas (Branco puro) */
-    --text-secondary: 0 0% 88%;    /* Textos de leitura e labels importantes */
-    --text-muted: 0 0% 65%;       /* Descrições, timestamps, "padrão terminal" */
-    --text-dim: 0 0% 45%;         /* Notas de rodapé, IDs de sistema, decorativos */
+    --text-primary: 0 0% 98%;
+    /* Títulos e informações críticas (Branco puro) */
+    --text-secondary: 0 0% 88%;
+    /* Textos de leitura e labels importantes */
+    --text-muted: 0 0% 65%;
+    /* Descrições, timestamps, "padrão terminal" */
+    --text-dim: 0 0% 45%;
+    /* Notas de rodapé, IDs de sistema, decorativos */
     /* TEXTO COM COR (Para telemetria) */
-    --text-accent: 160 84% 39%;   /* Destaques em verde/primary */
+    --text-accent: 160 84% 39%;
+    /* Destaques em verde/primary */
+
+    --text-link: 200 95% 65%;
+    /* Azul ciano vibrante */
+    --text-link-hover: 200 95% 75%;
+    /* Hover mais claro */
+    --text-link-active: 200 95% 55%;
+    /* Clique */
+    --text-link-visited: 260 70% 70%;
+    /* Roxo para links visitados */
 
     /* Interface */
     --border: 214.3 31.8% 91.4%;
@@ -84,16 +100,31 @@
 
     /* TEXTO */
     /* TEXTO: Escala de Contraste */
-    --text-primary: 0 0% 98%;      /* Títulos e informações críticas (Branco puro) */
-    --text-secondary: 0 0% 88%;    /* Textos de leitura e labels importantes */
-    --text-muted: 0 0% 65%;       /* Descrições, timestamps, "padrão terminal" */
-    --text-dim: 0 0% 45%;         /* Notas de rodapé, IDs de sistema, decorativos */
+    --text-primary: 0 0% 98%;
+    /* Títulos e informações críticas (Branco puro) */
+    --text-secondary: 0 0% 88%;
+    /* Textos de leitura e labels importantes */
+    --text-muted: 0 0% 65%;
+    /* Descrições, timestamps, "padrão terminal" */
+    --text-dim: 0 0% 45%;
+    /* Notas de rodapé, IDs de sistema, decorativos */
     /* TEXTO COM COR (Para telemetria) */
-    --text-accent: 160 84% 39%;   /* Destaques em verde/primary */
+    --text-accent: 160 84% 39%;
+    /* Destaques em verde/primary */
+
+    --text-link: 200 95% 65%;
+    /* Azul ciano vibrante */
+    --text-link-hover: 200 95% 75%;
+    /* Hover mais claro */
+    --text-link-active: 200 95% 55%;
+    /* Clique */
+    --text-link-visited: 260 70% 70%;
+    /* Roxo para links visitados */
 
     /* BORDAS E INPUTS */
     --border: 0 0% 15%;
-    --border-100: 13% 0.028 261.692; /* Invertido para o Dark */
+    --border-100: 13% 0.028 261.692;
+    /* Invertido para o Dark */
     --border-200: 21% 0.034 264.665;
     --border-300: 27.8% 0.033 256.848;
     --border-400: 37.3% 0.034 259.733;
@@ -115,6 +146,23 @@
     --chart-3: 38 92% 50%;
     --chart-4: 0 84% 60%;
     --chart-5: 280 65% 60%;
+  }
+
+  /**PREDEFINIÇÕES**/
+  a {
+    color: hsl(var(--text-link));
+  }
+
+  a:hover {
+    color: hsl(var(--text-link-hover));
+  }
+
+  a:active {
+    color: hsl(var(--text-link-active));
+  }
+
+  a:visited {
+    color: hsl(var(--text-link-visited));
   }
 }
 
@@ -183,13 +231,25 @@
 
   /* Animações (Shadcn padrão) */
   @keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
+    from {
+      height: 0;
+    }
+
+    to {
+      height: var(--radix-accordion-content-height);
+    }
   }
+
   @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+
+    to {
+      height: 0;
+    }
   }
+
   --animation-accordion-down: accordion-down 0.2s ease-out;
   --animation-accordion-up: accordion-up 0.2s ease-out;
 }
