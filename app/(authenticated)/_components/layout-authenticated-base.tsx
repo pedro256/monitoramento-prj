@@ -8,19 +8,19 @@ import {
   Cpu,
   Menu,
   X,
-  Bell,
-  User,
+  Bell
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { signOut } from "next-auth/react";
+import ProfileHeaderArea from "./profile-header-area";
 
 const navigation = [
   { name: "Visão Geral", href: "/dashboard", icon: Home },
   { name: "Dispositivos", href: "/devices", icon: Cpu },
   { name: "Monitoramento", href: "/monitoring", icon: Activity },
-  { name: "Configurações", href: "/settings", icon: Settings },
+  // { name: "Configurações", href: "/settings", icon: Settings },
 ];
 
 export default function LayoutAuthenticatedBase({
@@ -108,9 +108,7 @@ export default function LayoutAuthenticatedBase({
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
             </button>
-            <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-              <User className="w-5 h-5" />
-            </button>
+            <ProfileHeaderArea/>
           </div>
         </header>
         <main className="p-6 flex-1 overflow-y-auto">

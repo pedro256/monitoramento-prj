@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import LayoutAuthenticatedBase from "./_components/layout-authenticated-base";
+import AuthProvider from "./_providers/auth-provider";
 
 export default async function AuthenticatedLayout({
   children,
@@ -11,14 +12,14 @@ export default async function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  if(!session){
-    return redirect("/unauthorized")
+  if (!session) {
+    return redirect("/unauthorized");
   }
   return (
     <main>
-        <LayoutAuthenticatedBase>
-          {children}
-        </LayoutAuthenticatedBase>
+      <AuthProvider>
+        <LayoutAuthenticatedBase>{children}</LayoutAuthenticatedBase>
+      </AuthProvider>
     </main>
   );
 }
