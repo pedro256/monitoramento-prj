@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import LoadingIco from "@/components/loading-ico";
+import { useRouter } from "next/navigation";
 const registerSchema = z
   .object({
     name: z.string().min(2, "Identificação mínima requerida"),
@@ -42,6 +43,7 @@ const registerSchema = z
 
 export default function TechRegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const route = useRouter()
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -60,6 +62,7 @@ export default function TechRegisterPage() {
       }),
     }).finally(()=>{
        setIsSubmitting(false);
+       route.push("/auth")
     }).catch((e)=>{
       console.error("error: ",e)
     })
@@ -76,7 +79,7 @@ export default function TechRegisterPage() {
         <CardHeader className="space-y-1 border-b border-background/50 pb-6">
           <CardTitle className="text-2xl font-bold text-text-secondary tracking-tight flex items-center gap-3">
             <UserPlus className="w-6 h-6 text-primary" />
-            Registro de Novo Operador
+            Registro de Novo Usuário
           </CardTitle>
           <p className="text-xs text-text-secondary ">
             Inicie o provisionamento de credenciais para acesso ao sistema.

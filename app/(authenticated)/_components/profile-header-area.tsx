@@ -19,12 +19,12 @@ export default function ProfileHeaderArea() {
   return (
     <Popover>
       <PopoverTrigger>
-        <button
+        <div
           title={data?.user?.email}
           className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
         >
           <User className="w-5 h-5" />
-        </button>
+        </div>
       </PopoverTrigger>
       <PopoverContent className="w-80 border border-border">
         <div className="flex gap-2 text-foreground">

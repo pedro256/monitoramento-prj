@@ -20,6 +20,15 @@ interface Device {
   lastConnection: string;
 }
 
+/**
+ * id: string
+ * name:string
+ * model:string
+ * apiToken:string
+ * status:number
+ * datacriacao: datetime
+ */
+
 const initialDevices: Device[] = [
   { id: '1', name: 'Prensa Hidráulica 01', model: 'PH-2000X', apiToken: 'tk_prod_4x8n2k9m1p7q3r5s', status: 'online', lastConnection: '2024-03-11 14:25:30' },
   { id: '2', name: 'CNC Router 04', model: 'CNC-R500', apiToken: 'tk_prod_6y3m8k1n4p9r2s7t', status: 'online', lastConnection: '2024-03-11 14:24:45' },

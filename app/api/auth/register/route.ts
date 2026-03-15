@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
   
   const { error: dbError } = await supabaseServer
-    .from("organizations")
+    .from("users")
     .insert({
       id: userId,
       name: name,

@@ -18,7 +18,9 @@ export default async function AuthenticatedLayout({
   return (
     <main>
       <AuthProvider>
-        <LayoutAuthenticatedBase>{children}</LayoutAuthenticatedBase>
+        <LayoutAuthenticatedBase>
+          {children}
+          </LayoutAuthenticatedBase>
       </AuthProvider>
     </main>
   );
