@@ -47,7 +47,7 @@ export default function TechLoginPage() {
       email:values.email,
       password:values.password,
       redirect: true,
-      callbackUrl: "/dashboard",
+      callbackUrl: "/organization",
     });
 
     // // Simulação de autenticação

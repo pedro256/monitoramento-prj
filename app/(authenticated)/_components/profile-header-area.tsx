@@ -21,7 +21,7 @@ export default function ProfileHeaderArea() {
       <PopoverTrigger>
         <div
           title={handledEmail}
-          className="p-2 hover:text-text-secondary bg-primary-100 hover:bg-foreground rounded-lg transition-colors"
+          className="p-2 hover:text-text-secondary hover:bg-background rounded-lg transition-colors"
         >
           <User className="w-5 h-5" />
         </div>

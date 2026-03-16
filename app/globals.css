@@ -186,6 +186,7 @@
   a:visited {
     color: hsl(var(--text-link-visited));
   }
+
 }
 
 @theme inline {

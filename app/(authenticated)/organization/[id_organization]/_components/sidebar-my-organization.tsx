@@ -30,7 +30,7 @@ export default function SidebarOrganization() {
     return (
         <div>
             <div
-                className="fixed inset-y-0 left-0 z-50 h-screen border-l w-72 flex-none bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
+                className="fixed inset-y-0 left-0 z-48 h-screen border-l w-56 flex-none bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
                 style={{
                     transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
                 }}

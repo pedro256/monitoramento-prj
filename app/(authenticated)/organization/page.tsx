@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import IOrganizationItem from "@/shared/models/organization/IOrganizationItem";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import NewOrganizationModal from "./_components/new-organization-modal";
 
 
 
@@ -33,6 +34,10 @@ export default function OrganizationsPage() {
     buscarOrganizacoes()
   }, [])
 
+  async function onNewOrganizationLoad(){
+    await buscarOrganizacoes()
+  }
+
 
 
   return (
@@ -47,6 +52,9 @@ export default function OrganizationsPage() {
           <p className="text-text-secondary text-sm mt-1">
             Gerencie as unidades e permissões vinculadas ao seu perfil técnico.
           </p>
+        </div>
+        <div>
+          <NewOrganizationModal onNewOrganization={onNewOrganizationLoad}/>
         </div>
 
 
