@@ -20,7 +20,7 @@ export default async function AuthenticatedLayout({
       <AuthProvider>
         <LayoutAuthenticatedBase>
           {children}
-          </LayoutAuthenticatedBase>
+        </LayoutAuthenticatedBase>
       </AuthProvider>
     </main>
   );

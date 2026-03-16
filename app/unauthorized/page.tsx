@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function Unauthorized() {
   const router = useRouter();
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center p-6">
+    <main className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-md text-center">
         {/* Ícone com Alerta Visual */}
         <div className="relative inline-flex mb-8">
@@ -21,7 +21,7 @@ export default function Unauthorized() {
         </div>
 
         {/* Mensagem Principal */}
-        <h1 className="text-3xl font-bold tracking-tighter text-foreground mb-3">
+        <h1 className="text-3xl font-bold tracking-tighter mb-3">
           Acesso Restrito
         </h1>
         <p className="text-muted-foreground text-base mb-10 leading-relaxed">

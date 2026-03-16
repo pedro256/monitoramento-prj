@@ -13,31 +13,34 @@ import {
     X
 } from "lucide-react";
 
-const navigation = [
-    { name: "Visão Geral", href: "/dashboard", icon: Home },
-    { name: "Dispositivos", href: "/devices", icon: Cpu },
-    { name: "Monitoramento", href: "/monitoring", icon: Activity },
-    // { name: "Configurações", href: "/settings", icon: Settings },
-];
+
 export default function SidebarOrganization() {
 
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const pathname = usePathname();
 
+    const navigation = [
+        { name: "Visão Geral", href: `dashboard`, icon: Home },
+        { name: "Dispositivos", href: `devices`, icon: Cpu },
+        { name: "Monitoramento", href: `monitoring`, icon: Activity },
+        // { name: "Configurações", href: "/settings", icon: Settings },
+    ];
+
+
     return (
         <div>
             <div
-                className="fixed inset-y-0 left-0 z-50 h-screen border w-72 flex-none bg-[#111111] border-r border-gray-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
+                className="fixed inset-y-0 left-0 z-50 h-screen border-l w-72 flex-none bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
                 style={{
                     transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
                 }}
             >
                 <div className="flex h-full flex-col">
-                    <div className="flex h-16 items-center justify-between px-6 border-b border-gray-800">
-                  
+                    <div className="lg:hidden flex h-16 items-center justify-between px-6 border-b border-border">
+
                         <button
                             onClick={() => setSidebarOpen(false)}
-                            className="lg:hidden text-gray-400 hover:text-white"
+                            className=" text-gray-400 hover:text-white"
                         >
                             <X className="w-6 h-6" />
                         </button>

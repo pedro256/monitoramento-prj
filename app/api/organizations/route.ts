@@ -32,6 +32,7 @@ export async function GET(req: Request) {
     const responseDto:IOrganizationItem[] = [];
 
     data.forEach(item=>{
+        console.log(item)
         responseDto.push({
             email: item.email,
             name: item.name,

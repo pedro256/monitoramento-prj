@@ -74,8 +74,8 @@ export default function TechRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6 overflow-hidden">
-      <Card className="w-full max-w-lg bg-background border-border shadow-2xl z-10 backdrop-blur-sm">
+    <div className="min-h-screen flex items-center justify-center p-6 overflow-hidden">
+      <Card className="w-full max-w-lg border-border shadow-2xl z-10 backdrop-blur-sm">
         <CardHeader className="space-y-1 border-b border-background/50 pb-6">
           <CardTitle className="text-2xl font-bold text-text-secondary tracking-tight flex items-center gap-3">
             <UserPlus className="w-6 h-6 text-primary" />

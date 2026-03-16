@@ -20,8 +20,8 @@ export default function ProfileHeaderArea() {
     <Popover>
       <PopoverTrigger>
         <div
-          title={data?.user?.email}
-          className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+          title={handledEmail}
+          className="p-2 hover:text-text-secondary bg-primary-100 hover:bg-foreground rounded-lg transition-colors"
         >
           <User className="w-5 h-5" />
         </div>
@@ -33,7 +33,7 @@ export default function ProfileHeaderArea() {
         </div>
         <span className="text-xs text-text-muted">{data.user?.email}</span>
         <div className="flex flex-col mt-3 text-xs gap-1">
-          <Link href="/settings" className="border border-border px-1 py-2  rounded hover:bg-background/50">
+          <Link href="settings" className="border border-border px-1 py-2  rounded hover:bg-background/50">
             <p className="text-center">
               Configurações
             </p>

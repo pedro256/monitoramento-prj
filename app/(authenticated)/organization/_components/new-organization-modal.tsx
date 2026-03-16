@@ -62,7 +62,7 @@ export default function NewOrganizationModal() {
                     <Plus className="w-4 h-4" /> Nova Organização
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-background border-border text-text-primary">
+            <DialogContent className="border-border text-text-primary">
                 <DialogHeader>
                     <DialogTitle>Provisionar Organização</DialogTitle>
                     <DialogDescription className="text-text-secondary">

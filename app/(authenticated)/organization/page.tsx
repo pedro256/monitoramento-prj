@@ -36,7 +36,7 @@ export default function OrganizationsPage() {
 
 
   return (
-    <div className="min-h-screen bg-background p-8 space-y-8">
+    <div className="min-h-screen p-8 space-y-8">
       {/* HEADER DA PÁGINA */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
         <div>
@@ -64,7 +64,7 @@ export default function OrganizationsPage() {
       {/* GRID DE ORGANIZAÇÕES */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {organizations.map((org) => (
-          <Card key={org.id} className="group border-border bg-card/50 hover:border-primary/50 transition-all duration-300">
+          <Card key={org.id} className="group border-border bg-card hover:border-primary/50 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold tracking-tight">
                 {org.name}

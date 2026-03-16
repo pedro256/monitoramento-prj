@@ -8,11 +8,10 @@ export default async function AreaOrganizationLayout({
 
   return (
     <div className="flex">
-        <SidebarOrganization/>
-        <div  className="flex-1 overflow-y-auto">
-          
-        </div>
-      {children}
+      <SidebarOrganization />
+      <div className="flex-1 overflow-y-auto py-6 px-3">
+        {children}
+      </div>
     </div>
   );
 }
