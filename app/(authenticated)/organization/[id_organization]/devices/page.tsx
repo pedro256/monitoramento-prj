@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Plus,
   Eye,
   EyeOff,
   Copy,
@@ -11,17 +10,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import {
   Table,
   TableBody,
@@ -32,83 +21,29 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import IDeviceItem from "@/shared/models/devices/IDeviceItem";
+import NewDeviceDialog from "./_components/new-device-dialog";
+import { useParams } from "next/navigation";
 
-interface Device {
-  id: string;
-  name: string;
-  model: string;
-  apiToken: string;
-  status: "online" | "offline" | "maintenance";
-  lastConnection: string;
-}
-
-/**
- * id: string
- * name:string
- * model:string
- * apiToken:string
- * status:number
- * datacriacao: datetime
- */
-
-const initialDevices: Device[] = [
-  {
-    id: "1",
-    name: "Prensa Hidráulica 01",
-    model: "PH-2000X",
-    apiToken: "tk_prod_4x8n2k9m1p7q3r5s",
-    status: "online",
-    lastConnection: "2024-03-11 14:25:30",
-  },
-  {
-    id: "2",
-    name: "CNC Router 04",
-    model: "CNC-R500",
-    apiToken: "tk_prod_6y3m8k1n4p9r2s7t",
-    status: "online",
-    lastConnection: "2024-03-11 14:24:45",
-  },
-  {
-    id: "3",
-    name: "Torno Automático 02",
-    model: "TA-1500",
-    apiToken: "tk_prod_9z5n2m7k3p1r8s4t",
-    status: "online",
-    lastConnection: "2024-03-11 14:23:12",
-  },
-  {
-    id: "4",
-    name: "Fresadora CNC 03",
-    model: "F-CNC-800",
-    apiToken: "tk_prod_2x7m4k8n1p6r3s9t",
-    status: "online",
-    lastConnection: "2024-03-11 14:22:58",
-  },
-  {
-    id: "5",
-    name: "Injetora Plástico 01",
-    model: "IP-3000",
-    apiToken: "tk_prod_5y9m2k6n3p8r1s7t",
-    status: "maintenance",
-    lastConnection: "2024-03-11 12:15:20",
-  },
-  {
-    id: "6",
-    name: "Esteira Transportadora A",
-    model: "ET-500A",
-    apiToken: "tk_prod_8z3m5k9n2p7r4s1t",
-    status: "online",
-    lastConnection: "2024-03-11 14:25:15",
-  },
-];
 
 export default function DevicesPage() {
-  const [devices, setDevices] = useState<Device[]>(initialDevices);
+  const [devices, setDevices] = useState<IDeviceItem[]>([]);
   const [visibleTokens, setVisibleTokens] = useState<{
     [key: string]: boolean;
   }>({});
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newDevice, setNewDevice] = useState({ name: "", model: "" });
+  const params = useParams();
+  const idOrganization = params.id_organization;
+
+  async function buscarDispositivos(){
+    const req = await fetch(`/api/organizations/${idOrganization}/devices`);
+    const _devices:IDeviceItem[] = await req.json();
+    setDevices(_devices)
+  }
+
+  useEffect(()=>{
+    buscarDispositivos()
+  },[])
+
 
   const toggleTokenVisibility = (id: string) => {
     setVisibleTokens((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -122,29 +57,15 @@ export default function DevicesPage() {
     return token.substring(0, 8) + "••••••••••••••••";
   };
 
-  const handleAddDevice = () => {
-    const newId = (devices.length + 1).toString();
-    const token = `tk_prod_${Math.random().toString(36).substring(2, 15)}`;
-    const device: Device = {
-      id: newId,
-      name: newDevice.name,
-      model: newDevice.model,
-      apiToken: token,
-      status: "offline",
-      lastConnection: "Nunca",
-    };
-    setDevices([...devices, device]);
-    setNewDevice({ name: "", model: "" });
-    setIsDialogOpen(false);
-  };
+ 
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: number) => {
     switch (status) {
-      case "online":
+      case 1:
         return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-      case "offline":
+      case 2:
         return "bg-gray-500/10 text-gray-400 border-gray-500/20";
-      case "maintenance":
+      case 3:
         return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
       default:
         return "bg-gray-500/10 text-gray-400 border-gray-500/20";
@@ -160,76 +81,8 @@ export default function DevicesPage() {
             Configure e gerencie suas máquinas industriais
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary-900">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar Máquina
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold">
-                Adicionar Nova Máquina
-              </DialogTitle>
-              <DialogDescription className="text-gray-400">
-                Preencha os dados da nova máquina que será integrada ao sistema
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-gray-300">
-                  Nome da Máquina
-                </Label>
-                <Input
-                  id="name"
-                  placeholder="Ex: Prensa Hidráulica 05"
-                  value={newDevice.name}
-                  onChange={(e) =>
-                    setNewDevice({ ...newDevice, name: e.target.value })
-                  }
-                  className="bg-gray-800 border-gray-700 text-gray-100 focus:border-emerald-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="model" className="text-gray-300">
-                  Modelo
-                </Label>
-                <Input
-                  id="model"
-                  placeholder="Ex: PH-3000X"
-                  value={newDevice.model}
-                  onChange={(e) =>
-                    setNewDevice({ ...newDevice, model: e.target.value })
-                  }
-                  className="bg-gray-800 border-gray-700 text-gray-100 focus:border-emerald-500"
-                />
-              </div>
-              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4">
-                <p className="text-sm text-cyan-400">
-                  Um token de API será gerado automaticamente após a criação da
-                  máquina.
-                </p>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-                className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleAddDevice}
-                disabled={!newDevice.name || !newDevice.model}
-                className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white"
-              >
-                Adicionar Máquina
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <NewDeviceDialog/>
+        
       </div>
 
       <Card className="bg-card border-border">
@@ -242,7 +95,8 @@ export default function DevicesPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-border hover:bg-transparent font-semibold">
+                <TableRow className="border-border hover:bg-transparent font-semibold"> 
+                  <TableHead>Nome</TableHead>
                   <TableHead>Modelo</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>API Token</TableHead>
@@ -269,9 +123,9 @@ export default function DevicesPage() {
                         className={cn("border", getStatusBadge(device.status))}
                       >
                         <div className="w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
-                        {device.status === "online"
+                        {device.status === 1
                           ? "Online"
-                          : device.status === "maintenance"
+                          : device.status === 2
                             ? "Manutenção"
                             : "Offline"}
                       </Badge>
@@ -306,7 +160,7 @@ export default function DevicesPage() {
                       </div>
                     </TableCell>
                     <TableCell className="text-gray-400 text-sm">
-                      {device.lastConnection}
+                      {device.lastHeartbeat}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -357,7 +211,7 @@ export default function DevicesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-emerald-400">
-              {devices.filter((d) => d.status === "online").length}
+              {devices.filter((d) => d.status === 1).length}
             </div>
             <p className="text-xs text-gray-400 mt-1">Conectados e operando</p>
           </CardContent>
@@ -371,7 +225,7 @@ export default function DevicesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-yellow-400">
-              {devices.filter((d) => d.status === "maintenance").length}
+              {devices.filter((d) => d.status === 2).length}
             </div>
             <p className="text-xs text-gray-400 mt-1">Requerem atenção</p>
           </CardContent>
