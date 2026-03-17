@@ -12,8 +12,12 @@ export default async function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session) {
-    return redirect("/unauthorized");
+  console.log(session)
+  if(!session){
+    return redirect("/unauthorized")
+  }
+  if (session?.error === "TokenExpired") {
+    return redirect("/signout?reasion=TokenExpired");
   }
   return (
     <main>

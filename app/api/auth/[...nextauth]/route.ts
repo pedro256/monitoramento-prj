@@ -34,6 +34,7 @@ export const authOptions: NextAuthOptions = {
           id: data.user.id,
           email: data.user.email,
           supabaseAccessToken: data.session?.access_token,
+          expiresAt: data.session?.expires_at,
         };
       },
     }),
@@ -47,10 +48,20 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       // No login (primeira vez), o objeto 'user' está disponível
       // do lado do servidor eu consigo o 'token const token = await getToken({ req });'
+
       if (user) {
         token.id = user.id;
         token.supabaseAccessToken = user.supabaseAccessToken;
+        token.expiresAt = user.expiresAt;
       }
+
+      const nowInSeconds = Math.floor(Date.now() / 1000);
+      const isTokenValid = (token.expiresAt as number) - nowInSeconds > 30;
+      if (!isTokenValid) {
+        console.log("Token expirado!");
+        return { ...token, error: "TokenExpired" };
+      }
+      console.log("Token Limpo");
       return token;
     },
 
@@ -60,6 +71,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.email = token.email;
+        // session.expiresAt = token.expiresAt;
+        session.error = token.error;
       }
       return session;
     },
