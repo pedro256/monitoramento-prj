@@ -24,25 +24,27 @@ import { cn } from "@/lib/utils";
 import IDeviceItem from "@/shared/models/devices/IDeviceItem";
 import NewDeviceDialog from "./_components/new-device-dialog";
 import { useParams } from "next/navigation";
+import EditDeviceDialog from "./_components/edit-device-dialog";
 
 
 export default function DevicesPage() {
   const [devices, setDevices] = useState<IDeviceItem[]>([]);
+  const [deviceToEdit, setDeviceToEdit] = useState<IDeviceItem | null>(null);
   const [visibleTokens, setVisibleTokens] = useState<{
     [key: string]: boolean;
   }>({});
   const params = useParams();
   const idOrganization = params.id_organization;
 
-  async function buscarDispositivos(){
+  async function buscarDispositivos() {
     const req = await fetch(`/api/organizations/${idOrganization}/devices`);
-    const _devices:IDeviceItem[] = await req.json();
+    const _devices: IDeviceItem[] = await req.json();
     setDevices(_devices)
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     buscarDispositivos()
-  },[])
+  }, [])
 
 
   const toggleTokenVisibility = (id: string) => {
@@ -56,19 +58,27 @@ export default function DevicesPage() {
   const maskToken = (token: string) => {
     return token.substring(0, 8) + "••••••••••••••••";
   };
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja remover este dispositivo?")) return;
 
- 
+    const res = await fetch(`/api/organizations/${idOrganization}/devices?id=${id}`, {
+      method: "DELETE"
+    });
+
+    if (res.ok) buscarDispositivos();
+  };
+
 
   const getStatusBadge = (status: number) => {
     switch (status) {
-      case 1:
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-      case 2:
-        return "bg-gray-500/10 text-gray-400 border-gray-500/20";
-      case 3:
-        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+      // case 1:
+      //   return "bg-emerald-500/10 text-primary border-emerald-500/20";
+      // case 2:
+      //   return "bg-gray-500/10 text-text-muted border-gray-500/20";
+      // case 3:
+      //   return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
       default:
-        return "bg-gray-500/10 text-gray-400 border-gray-500/20";
+        return "bg-muted text-text-muted border-text-muted/20";
     }
   };
 
@@ -81,8 +91,8 @@ export default function DevicesPage() {
             Configure e gerencie suas máquinas industriais
           </p>
         </div>
-        <NewDeviceDialog/>
-        
+        <NewDeviceDialog />
+
       </div>
 
       <Card className="bg-card border-border">
@@ -95,7 +105,7 @@ export default function DevicesPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-border hover:bg-transparent font-semibold"> 
+                <TableRow className="border-border hover:bg-transparent font-semibold">
                   <TableHead>Nome</TableHead>
                   <TableHead>Modelo</TableHead>
                   <TableHead>Status</TableHead>
@@ -110,12 +120,12 @@ export default function DevicesPage() {
                 {devices.map((device) => (
                   <TableRow
                     key={device.id}
-                    className="border-border hover:bg-primary/30"
+                    className="border-border hover:bg-primary/10"
                   >
                     <TableCell className="font-medium text-gray-100">
                       {device.name}
                     </TableCell>
-                    <TableCell className="text-gray-400">
+                    <TableCell className="text-text-muted">
                       {device.model}
                     </TableCell>
                     <TableCell>
@@ -132,7 +142,7 @@ export default function DevicesPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <code className="text-xs bg-gray-800 px-3 py-1.5 rounded border border-gray-700 text-gray-300 font-mono">
+                        <code className="text-xs bg-accent px-3 py-1.5 rounded border border-accent-foreground/25 text-accent-foreground font-mono">
                           {visibleTokens[device.id]
                             ? device.apiToken
                             : maskToken(device.apiToken)}
@@ -141,7 +151,7 @@ export default function DevicesPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => toggleTokenVisibility(device.id)}
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-gray-100 hover:bg-gray-800"
+                          className="h-8 w-8 p-0 text-text-muted hover:bg-primary-800"
                         >
                           {visibleTokens[device.id] ? (
                             <EyeOff className="w-4 h-4" />
@@ -153,13 +163,13 @@ export default function DevicesPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => copyToken(device.apiToken)}
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-emerald-400 hover:bg-gray-800"
+                          className=" h-8 w-8 p-0 text-text-muted hover:text-primary"
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
-                    <TableCell className="text-gray-400 text-sm">
+                    <TableCell className="text-text-muted text-sm">
                       {device.lastHeartbeat}
                     </TableCell>
                     <TableCell className="text-right">
@@ -167,14 +177,16 @@ export default function DevicesPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-cyan-400 hover:bg-gray-800"
+                          onClick={() => setDeviceToEdit(device)}
+                          className="h-8 w-8 p-0 text-text-secondary  hover:text-primary-200 hover:bg-primary-800"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-gray-800"
+                          onClick={() => handleDelete(device.id)}
+                          className="h-8 w-8 p-0 text-text-secondary hover:text-destructive-foreground hover:bg-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -189,9 +201,9 @@ export default function DevicesPage() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-[#111111] border-gray-800">
+        <Card className="bg-card border-card-foreground/5">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-text-muted">
               Total de Dispositivos
             </CardTitle>
           </CardHeader>
@@ -199,27 +211,27 @@ export default function DevicesPage() {
             <div className="text-3xl font-bold text-gray-100">
               {devices.length}
             </div>
-            <p className="text-xs text-gray-400 mt-1">Cadastrados no sistema</p>
+            <p className="text-xs text-text-muted mt-1">Cadastrados no sistema</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-[#111111] border-gray-800">
+        <Card className="bg-card border-card-foreground/5">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-text-muted">
               Ativos Agora
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-emerald-400">
+            <div className="text-3xl font-bold text-primary">
               {devices.filter((d) => d.status === 1).length}
             </div>
-            <p className="text-xs text-gray-400 mt-1">Conectados e operando</p>
+            <p className="text-xs text-text-muted mt-1">Conectados e operando</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-[#111111] border-gray-800">
+        <Card className="bg-card border-card-foreground/5">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-text-muted">
               Em Manutenção
             </CardTitle>
           </CardHeader>
@@ -227,10 +239,18 @@ export default function DevicesPage() {
             <div className="text-3xl font-bold text-yellow-400">
               {devices.filter((d) => d.status === 2).length}
             </div>
-            <p className="text-xs text-gray-400 mt-1">Requerem atenção</p>
+            <p className="text-xs text-text-muted mt-1">Requerem atenção</p>
           </CardContent>
         </Card>
       </div>
+      {deviceToEdit && (
+        <EditDeviceDialog
+          device={deviceToEdit}
+          isOpen={!!deviceToEdit}
+          onClose={() => setDeviceToEdit(null)}
+          onSuccess={buscarDispositivos}
+        />
+      )}
     </div>
   );
 }
