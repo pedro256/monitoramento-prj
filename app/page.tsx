@@ -17,7 +17,7 @@ export default function Home() {
             <Link href="/auth">Login</Link>
           </li>
           <li>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/organization">Organizações</Link>
           </li>
         </ul>
       </div>
