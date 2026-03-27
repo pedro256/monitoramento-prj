@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace backend.Services
 {
-    public class MqqtConsumerDevicesService : BackgroundService
+    public class MqttConsumerDevicesService : BackgroundService
     {
         private IMqttClient _client;
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -23,11 +23,9 @@ namespace backend.Services
 
             _client.ApplicationMessageReceivedAsync += async e =>
             {
-                var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
 
                 Console.WriteLine($"Mensagem recebida: {payload}");
-
-                // 👉 aqui você joga pro buffer/fila
             };
             await _client.ConnectAsync(options, stoppingToken);
             await _client.SubscribeAsync("empresa/+/+/telemetria");

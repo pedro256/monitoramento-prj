@@ -6,6 +6,7 @@ using backend.Repositories.Devices;
 using backend.Repositories.Organization;
 using backend.Repositories.TelemetryLog;
 using backend.Repositories.Users;
+using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -54,6 +55,14 @@ namespace backend.Providers
             builder.Services.AddScoped<DeviceRepository>();
             builder.Services.AddScoped<AlertRepository>();
             builder.Services.AddScoped<TelemetryLogRepository>();
+            #endregion
+
+
+            #region SERVICES
+            /**
+            INICIA JUNTO COM A API, RODA EM BACKGROUND
+            **/
+            builder.Services.AddHostedService<MqttConsumerDevicesService>();
             #endregion
 
 
