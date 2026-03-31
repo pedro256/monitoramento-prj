@@ -3,7 +3,7 @@ Sistem que permite ter uma forma de visualização geral de dispositivos de uma 
 
 ## Tecnologia
 - Nextjs 16, tailwind, Next-auth
-- Dotnet,Supabase,Docker
+- Dotnet,Supabase,Docker,Redis
 
 ## Req. Funcionais:
 - Criar Organizações e Dispositivos e Manter os dados dos mesmos.
