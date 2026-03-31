@@ -1,4 +1,14 @@
 services:
+  redis-monitoramento-prj:
+      image: redis:7-alpine
+      container_name: redis-monitoramento-prj
+      ports:
+        - "6379:6379"
+      volumes:
+        - redis_data:/data
+      command: redis-server --appendonly yes
+      restart: unless-stopped
+      
   mqtt:
     image: eclipse-mosquitto:2
     container_name: mqtt_services
@@ -7,3 +17,5 @@ services:
       - "9001:9001"
     volumes:
       - ./docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+volumes:
+  redis_data:
