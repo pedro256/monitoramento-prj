@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace backend.Models
 {
-    [Table("alert")]
+    [Table("telemetric_alerts")]
     public class AlertModel
     {
         [Key]

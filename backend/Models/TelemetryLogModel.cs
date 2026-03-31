@@ -15,14 +15,13 @@ namespace backend.Models
 
         public Guid? DeviceId { get; set; }
 
-        [Required]
-        public string Payload { get; set; } = "{}"; // jsonb
-
-        public decimal? Temperature { get; set; }
-        public decimal? Pressure { get; set; }
         public int? CycleCount { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public String Tag { get; set; }
+        public Decimal Value { get; set; }
+        public String Unity { get; set; }
 
         // RELACIONAMENTO
         [ForeignKey(nameof(DeviceId))]

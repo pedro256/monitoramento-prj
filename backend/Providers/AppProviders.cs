@@ -10,6 +10,7 @@ using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 
 namespace backend.Providers
 {
@@ -21,6 +22,14 @@ namespace backend.Providers
             builder.Services.AddDbContext<AppPgDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
             );
+            #endregion
+            
+            #region REDIS
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var connString = builder.Configuration.GetConnectionString("Redis")!;
+                return ConnectionMultiplexer.Connect(connString);
+            });
             #endregion
 
             #region AUTH JWT
@@ -47,7 +56,7 @@ namespace backend.Providers
             });
             builder.Services.AddAuthorization();
             #endregion
-            
+
 
             #region  REPOSITORIES
             builder.Services.AddScoped<UsersRepository>();
@@ -63,7 +72,10 @@ namespace backend.Providers
             INICIA JUNTO COM A API, RODA EM BACKGROUND
             **/
             builder.Services.AddHostedService<MqttConsumerDevicesService>();
+            builder.Services.AddHostedService<TelemetriaFlushService>();
             #endregion
+
+
 
 
         }

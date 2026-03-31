@@ -26,5 +26,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+Console.WriteLine($"[ENV] {builder.Environment.EnvironmentName}");
 app.Run();

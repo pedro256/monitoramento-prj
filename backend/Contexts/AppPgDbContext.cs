@@ -69,9 +69,6 @@ namespace backend.Contexts
                 .WithMany(d => d.TelemetryLogs)
                 .HasForeignKey(t => t.DeviceId);
 
-            modelBuilder.Entity<TelemetryLogModel>()
-                .Property(t => t.Payload)
-                .HasColumnType("jsonb");
         }
     }
 }
