@@ -7,6 +7,7 @@ import {
   Copy,
   Trash2,
   CreditCard as Edit,
+  Activity,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import IDeviceItem from "@/shared/models/devices/IDeviceItem";
 import NewDeviceDialog from "./_components/new-device-dialog";
 import { useParams } from "next/navigation";
 import EditDeviceDialog from "./_components/edit-device-dialog";
+import DevicesInforHeader from "./_components/header/devices-infor-header";
 
 
 export default function DevicesPage() {
@@ -91,8 +93,14 @@ export default function DevicesPage() {
             Configure e gerencie suas máquinas industriais
           </p>
         </div>
-        <NewDeviceDialog />
+        <div>
 
+          <NewDeviceDialog />
+        </div>
+
+      </div>
+      <div>
+        <DevicesInforHeader orgId={idOrganization?.toString() || ""} />
       </div>
 
       <Card className="bg-card border-border">
@@ -167,6 +175,7 @@ export default function DevicesPage() {
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
+
                       </div>
                     </TableCell>
                     <TableCell className="text-text-muted text-sm">
@@ -174,6 +183,13 @@ export default function DevicesPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className=" h-8 w-8 p-0 text-text-muted hover:text-primary"
+                        >
+                          <Activity className="w-4 h-4" />
+                        </Button>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -190,6 +206,7 @@ export default function DevicesPage() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
+
                       </div>
                     </TableCell>
                   </TableRow>
@@ -200,49 +217,6 @@ export default function DevicesPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-card border-card-foreground/5">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-text-muted">
-              Total de Dispositivos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-100">
-              {devices.length}
-            </div>
-            <p className="text-xs text-text-muted mt-1">Cadastrados no sistema</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-card-foreground/5">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-text-muted">
-              Ativos Agora
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-primary">
-              {devices.filter((d) => d.status === 1).length}
-            </div>
-            <p className="text-xs text-text-muted mt-1">Conectados e operando</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-card-foreground/5">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-text-muted">
-              Em Manutenção
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-yellow-400">
-              {devices.filter((d) => d.status === 2).length}
-            </div>
-            <p className="text-xs text-text-muted mt-1">Requerem atenção</p>
-          </CardContent>
-        </Card>
-      </div>
       {deviceToEdit && (
         <EditDeviceDialog
           device={deviceToEdit}

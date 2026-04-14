@@ -1,3 +1,4 @@
+using backend.Infra.Realtime;
 using backend.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,7 @@ builder.Services.AddSwaggerGen();
 AppProviders.Config(builder);
 var app = builder.Build();
 
-
+app.MapHub<DevicesHub>("/devicesHub");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

@@ -5,7 +5,7 @@ using StackExchange.Redis;
 using System.Text;
 using System.Text.Json;
 
-namespace backend.Services
+namespace backend.Infra.Messaging
 {
     public class MqttConsumerDevicesService : BackgroundService
     {

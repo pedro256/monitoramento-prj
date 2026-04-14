@@ -6,12 +6,14 @@ using backend.Repositories.Devices;
 using backend.Repositories.Organization;
 using backend.Repositories.TelemetryLog;
 using backend.Repositories.Users;
-using backend.Services;
+using backend.Infra.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
-
+using backend.Infra.Messaging;
+using backend.Configuration;
+using backend.Services.RealtimeToken;
 namespace backend.Providers
 {
     public class AppProviders
@@ -23,7 +25,13 @@ namespace backend.Providers
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
             );
             #endregion
-            
+
+            #region  CONFIGURE
+            builder.Services.Configure<RealtimeJwtOptions>(
+                builder.Configuration.GetSection("RealtimeJwt")
+                );
+            #endregion
+
             #region REDIS
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
@@ -35,12 +43,10 @@ namespace backend.Providers
             #region AUTH JWT
             var supabaseUrl = builder.Configuration["SupabaseStrings:Url"];
             string supabaseJwtSecret = builder.Configuration["SupabaseStrings:JwtSecret"] ?? "";
+            string realtimeJwtSecret = builder.Configuration["RealtimeJwt:Key"] ?? "";
 
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+            builder.Services.AddAuthentication()
+            .AddJwtBearer("Default", options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -50,11 +56,48 @@ namespace backend.Providers
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(supabaseJwtSecret)
-                    )
+                        Encoding.UTF8.GetBytes(supabaseJwtSecret))
+                };
+            })
+            .AddJwtBearer("Realtime", options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(realtimeJwtSecret))
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            path.StartsWithSegments("/devicesHub"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             });
-            builder.Services.AddAuthorization();
+
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RealtimePolicy", policy =>
+                {
+                    policy.AuthenticationSchemes.Add("Realtime");
+                    policy.RequireAuthenticatedUser();
+                });
+            });
             #endregion
 
 
@@ -67,14 +110,22 @@ namespace backend.Providers
             #endregion
 
 
-            #region SERVICES
+            #region WORKERS
             /**
             INICIA JUNTO COM A API, RODA EM BACKGROUND
             **/
             builder.Services.AddHostedService<MqttConsumerDevicesService>();
             builder.Services.AddHostedService<TelemetriaFlushService>();
+
             #endregion
 
+            #region WEBSOCKET
+            builder.Services.AddSignalR();
+            #endregion
+
+            #region SERVICES
+            builder.Services.AddScoped<IRealtimeTokenService, RealtimeTokenService>();
+            #endregion
 
 
 

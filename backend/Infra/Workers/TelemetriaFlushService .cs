@@ -8,13 +8,14 @@ using System.Text.Json;
 using backend.DTOs;
 using NpgsqlTypes;
 
-namespace backend.Services
+namespace backend.Infra.Workers
 {
     public class TelemetriaFlushService : BackgroundService
     {
         private readonly IDatabase _redis;
         private readonly string _connString;
-        private const string RedisKey = "mqtt:telemetria:buffer";
+        private const string TelemetricBufferCachedKey = "mqtt:telemetria:buffer";
+        private const string DevicesOnlineCachedKey = "devices-online-check";
         private const int IntervalMs = 5000;
 
         public TelemetriaFlushService(IConnectionMultiplexer redis, IConfiguration config)
@@ -36,9 +37,9 @@ namespace backend.Services
         {
             try
             {
-                var items = await _redis.ListRangeAsync(RedisKey);
+                var items = await _redis.ListRangeAsync(TelemetricBufferCachedKey);
                 if (items.Length == 0) return;
-                await _redis.KeyDeleteAsync(RedisKey);
+                await _redis.KeyDeleteAsync(TelemetricBufferCachedKey);
 
                 var payloads = items
                     .Select(x => JsonSerializer.Deserialize<DevicesPayload>(x.ToString(),
@@ -48,6 +49,51 @@ namespace backend.Services
 
                 await using var conn = new NpgsqlConnection(_connString);
                 await conn.OpenAsync();
+
+                //lista em cache de dispositivo (id,lastSeen)
+
+                var _devicesCached = await _redis.ListRangeAsync(DevicesOnlineCachedKey);
+                var devicesOnlineChecker = _devicesCached.Select(
+                    x => JsonSerializer.Deserialize<DevicesOnlineChecker>(
+                        x.ToString(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        )
+                    )
+                    .Where(x => x != null)
+                    .ToList();
+                var now = DateTime.UtcNow;
+                var timeout = TimeSpan.FromMinutes(1);
+                var devicesDict = devicesOnlineChecker.ToDictionary(d => d.id, d => d);
+
+                foreach (var dev in payloads)
+                {
+                    var id = dev.DeviceId.ToString();
+                    if (!devicesDict.ContainsKey(id))
+                    {
+                        devicesDict[id] = new DevicesOnlineChecker
+                        {
+                            id = id,
+                            lastSeen = now,
+                            // companyId = dev.CompanyId // IMPORTANTE
+                        };
+                    }
+                    else
+                    {
+                        devicesDict[id].lastSeen = now;
+                    }
+                }
+                var devicesOnline = devicesDict
+                    .Where(d => (now - d.Value.lastSeen) <= timeout)
+                    .Select(d => d.Value)
+                    .ToList();
+                await _redis.KeyDeleteAsync(DevicesOnlineCachedKey);
+                foreach (var device in devicesOnline)
+                {
+                    await _redis.ListRightPushAsync(
+                        DevicesOnlineCachedKey,
+                        JsonSerializer.Serialize(device)
+                    );
+                }
+                // TODO: Adicionar ao Web Socket
 
                 // Sensores em massa
                 await using (var writer = await conn.BeginBinaryImportAsync(

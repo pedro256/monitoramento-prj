@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { supabaseServer } from "@/lib/supabase/server";
+import { da } from "date-fns/locale";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -20,7 +21,7 @@ export const authOptions: NextAuthOptions = {
           email: credentials?.email,
           password: credentials?.password,
         });
-
+        console.log("token",data.session)
         if (error) {
           console.error("Message: ", error.message);
           throw new Error("Email ou senha inválidos");

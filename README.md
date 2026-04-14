@@ -3,7 +3,18 @@ Sistem que permite ter uma forma de visualização geral de dispositivos de uma 
 
 ## Tecnologia
 - Nextjs 16, tailwind, Next-auth
-- Dotnet,Supabase,Docker,Redis
+- Dotnet,Supabase,Docker,Redis, Websocket
+
+
+## Pontos Importantes
+- Uso do Next Auth: --
+- Uso de MQQT
+- Uso do Web Socket
+    - Token para websocket
+- Uso do Redis
+- Container com Docker
+- Uso do Supabase (Authenticação, Database)
+- Dias Authenticações no Backend (Padrão,Adequada para Realtime Conections)
 
 ## Req. Funcionais:
 - Criar Organizações e Dispositivos e Manter os dados dos mesmos.
