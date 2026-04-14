@@ -7,6 +7,8 @@ using Npgsql;
 using System.Text.Json;
 using backend.DTOs;
 using NpgsqlTypes;
+using backend.Repositories.Organization;
+using backend.Repositories.Devices;
 
 namespace backend.Infra.Workers
 {
@@ -18,10 +20,17 @@ namespace backend.Infra.Workers
         private const string DevicesOnlineCachedKey = "devices-online-check";
         private const int IntervalMs = 5000;
 
-        public TelemetriaFlushService(IConnectionMultiplexer redis, IConfiguration config)
+        private readonly DeviceRepository _devRepo;
+
+        public TelemetriaFlushService(
+            IConnectionMultiplexer redis,
+            IConfiguration config,
+            DeviceRepository deviceRepository
+            )
         {
             _redis = redis.GetDatabase();
             _connString = config.GetConnectionString("DefaultConnection")!;
+            _devRepo = deviceRepository;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -33,6 +42,61 @@ namespace backend.Infra.Workers
             }
         }
 
+        private async Task PersistOnlineDevices(List<DevicesPayload?>? payloads)
+        {
+            var now = DateTime.UtcNow;
+            var timeout = TimeSpan.FromMinutes(1);
+
+            var batch = _redis.CreateBatch();
+
+            foreach (var dev in payloads)
+            {
+                var id = dev.DeviceId.ToString();
+
+                batch.HashSetAsync(
+                    DevicesOnlineCachedKey,
+                    id,
+                    now.ToString("O")
+                );
+            }
+
+            batch.Execute();
+            var allDevices = await _redis.HashGetAllAsync(DevicesOnlineCachedKey);
+
+            var devicesOnline = new List<string>();
+
+            foreach (var entry in allDevices)
+            {
+                var deviceId = entry.Name!;
+                var lastSeen = DateTime.Parse(entry.Value!);
+
+                if ((now - lastSeen) <= timeout)
+                {
+                    devicesOnline.Add(deviceId);
+                }
+                else
+                {
+                    await _redis.HashDeleteAsync(DevicesOnlineCachedKey, deviceId);
+                }
+            }
+
+            // 🔥 3. busca org (ideal: cache isso!)
+            var devicesOrg = await _devRepo
+                .GetDictOrganizationsByArrayDeviceId(devicesOnline);
+
+
+            var grouped = devicesOnline
+                .GroupBy(id => devicesOrg[id]);
+
+            foreach (var group in grouped)
+            {
+                // await _realtimeNotifier.SendToCompany(group.Key, new
+                // {
+                //     type = "devices_online",
+                //     count = group.Count()
+                // });
+            }
+        }
         private async Task FlushAsync()
         {
             try
@@ -50,50 +114,8 @@ namespace backend.Infra.Workers
                 await using var conn = new NpgsqlConnection(_connString);
                 await conn.OpenAsync();
 
-                //lista em cache de dispositivo (id,lastSeen)
+                await PersistOnlineDevices(payloads);
 
-                var _devicesCached = await _redis.ListRangeAsync(DevicesOnlineCachedKey);
-                var devicesOnlineChecker = _devicesCached.Select(
-                    x => JsonSerializer.Deserialize<DevicesOnlineChecker>(
-                        x.ToString(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                        )
-                    )
-                    .Where(x => x != null)
-                    .ToList();
-                var now = DateTime.UtcNow;
-                var timeout = TimeSpan.FromMinutes(1);
-                var devicesDict = devicesOnlineChecker.ToDictionary(d => d.id, d => d);
-
-                foreach (var dev in payloads)
-                {
-                    var id = dev.DeviceId.ToString();
-                    if (!devicesDict.ContainsKey(id))
-                    {
-                        devicesDict[id] = new DevicesOnlineChecker
-                        {
-                            id = id,
-                            lastSeen = now,
-                            // companyId = dev.CompanyId // IMPORTANTE
-                        };
-                    }
-                    else
-                    {
-                        devicesDict[id].lastSeen = now;
-                    }
-                }
-                var devicesOnline = devicesDict
-                    .Where(d => (now - d.Value.lastSeen) <= timeout)
-                    .Select(d => d.Value)
-                    .ToList();
-                await _redis.KeyDeleteAsync(DevicesOnlineCachedKey);
-                foreach (var device in devicesOnline)
-                {
-                    await _redis.ListRightPushAsync(
-                        DevicesOnlineCachedKey,
-                        JsonSerializer.Serialize(device)
-                    );
-                }
-                // TODO: Adicionar ao Web Socket
 
                 // Sensores em massa
                 await using (var writer = await conn.BeginBinaryImportAsync(

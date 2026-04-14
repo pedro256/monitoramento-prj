@@ -24,5 +24,21 @@ namespace backend.Repositories.Devices
             return await _context.Devices
                 .FirstOrDefaultAsync(d => d.ApiToken == token);
         }
+
+
+        public async Task<Dictionary<string, string>> GetDictOrganizationsByArrayDeviceId(List<string> devicesId)
+        {
+            return await _context.Devices
+                .Where(dev => devicesId.Contains(dev.Id.ToString()))
+                .Select(d => new
+                {
+                    DeviceId = d.Id.ToString(),
+                    OrganizationId = d.OrganizationId.ToString()
+                })
+                .ToDictionaryAsync(
+                    x => x.DeviceId,
+                    x => x.OrganizationId
+                );
+        }
     }
 }

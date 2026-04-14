@@ -13,7 +13,7 @@ namespace backend.Models
         [Key]
         public Guid Id { get; set; }
 
-        public Guid? OrganizationId { get; set; }
+        public Guid OrganizationId { get; set; }
 
         [Required]
         public string Name { get; set; } = "";
