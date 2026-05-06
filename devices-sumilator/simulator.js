@@ -37,7 +37,7 @@ function gerarAlertas(sensors) {
 
 for (let i = 0; i < TOTAL_DISPOSITIVOS; i++) {
   const deviceId = '88fb9404-902e-4f23-8707-bc5bfd2ee2df';
-  const intervalo = 500 + Math.random() * 1500;
+  const intervalo = 500 + Math.random() * 15000;
 
   const estado = {
     fatorTempo: 0,

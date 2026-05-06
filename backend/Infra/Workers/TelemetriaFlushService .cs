@@ -20,17 +20,17 @@ namespace backend.Infra.Workers
         private const string DevicesOnlineCachedKey = "devices-online-check";
         private const int IntervalMs = 5000;
 
-        private readonly DeviceRepository _devRepo;
+        private readonly IServiceProvider _serviceProvider;
 
         public TelemetriaFlushService(
             IConnectionMultiplexer redis,
             IConfiguration config,
-            DeviceRepository deviceRepository
+            IServiceProvider serviceProvider
             )
         {
             _redis = redis.GetDatabase();
             _connString = config.GetConnectionString("DefaultConnection")!;
-            _devRepo = deviceRepository;
+            _serviceProvider = serviceProvider;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -53,7 +53,7 @@ namespace backend.Infra.Workers
             {
                 var id = dev.DeviceId.ToString();
 
-                batch.HashSetAsync(
+                await batch.HashSetAsync(
                     DevicesOnlineCachedKey,
                     id,
                     now.ToString("O")
@@ -80,28 +80,35 @@ namespace backend.Infra.Workers
                 }
             }
 
-            // 🔥 3. busca org (ideal: cache isso!)
-            var devicesOrg = await _devRepo
-                .GetDictOrganizationsByArrayDeviceId(devicesOnline);
-
-
-            var grouped = devicesOnline
-                .GroupBy(id => devicesOrg[id]);
-
-            foreach (var group in grouped)
+            using (var scope = _serviceProvider.CreateScope())
             {
-                // await _realtimeNotifier.SendToCompany(group.Key, new
+                var devRepo = scope.ServiceProvider.GetRequiredService<DeviceRepository>();
+
+                var devicesOrg = await devRepo.GetDictOrganizationsByArrayDeviceId(devicesOnline);
+
+                var grouped = devicesOnline
+                    .Where(id => devicesOrg.ContainsKey(id)) // Evita erro se a chave não existir
+                    .GroupBy(id => devicesOrg[id]);
+
+                foreach (var group in grouped)
+                {
+                //      await _realtimeNotifier.SendToCompany(group.Key, new
                 // {
                 //     type = "devices_online",
                 //     count = group.Count()
                 // });
+                }
             }
+
+
+            
         }
         private async Task FlushAsync()
         {
             try
             {
                 var items = await _redis.ListRangeAsync(TelemetricBufferCachedKey);
+                Console.WriteLine($"Quantidade de Dados: {items.Length}");
                 if (items.Length == 0) return;
                 await _redis.KeyDeleteAsync(TelemetricBufferCachedKey);
 
@@ -114,7 +121,7 @@ namespace backend.Infra.Workers
                 await using var conn = new NpgsqlConnection(_connString);
                 await conn.OpenAsync();
 
-                await PersistOnlineDevices(payloads);
+                // await PersistOnlineDevices(payloads);
 
 
                 // Sensores em massa
