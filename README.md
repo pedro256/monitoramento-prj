@@ -22,6 +22,10 @@ Abaixo está a representação visual da arquitetura de comunicação e ingestã
 
 ---
 
+<img src="./mqtt_redis_postgres_flow.svg" alt="Insert Database Workflow" style="width: 100%; border-radius: 8px; margin-top: 10px;">
+
+---
+
 ## 💾 Base de Dados
 
 Base de Dados para facilitar a comunicação e ja ter algo preparado usamos Subabase que já possui banco de dados integrado (PostgreSQL)
