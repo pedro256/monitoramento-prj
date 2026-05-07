@@ -8,6 +8,7 @@ using System.Text.Json;
 using backend.DTOs;
 using NpgsqlTypes;
 using backend.Repositories.Organization;
+using backend.Infra.Realtime;
 using backend.Repositories.Devices;
 
 namespace backend.Infra.Workers
@@ -83,7 +84,7 @@ namespace backend.Infra.Workers
             using (var scope = _serviceProvider.CreateScope())
             {
                 var devRepo = scope.ServiceProvider.GetRequiredService<DeviceRepository>();
-
+                var realtimeNotifier = scope.ServiceProvider.GetRequiredService<RealtimeNotifier>();
                 var devicesOrg = await devRepo.GetDictOrganizationsByArrayDeviceId(devicesOnline);
 
                 var grouped = devicesOnline
@@ -92,11 +93,11 @@ namespace backend.Infra.Workers
 
                 foreach (var group in grouped)
                 {
-                //      await _realtimeNotifier.SendToCompany(group.Key, new
-                // {
-                //     type = "devices_online",
-                //     count = group.Count()
-                // });
+                    await realtimeNotifier.SendToOrganization(group.Key, new
+                    {
+                        type = "devices_online",
+                        count = group.Count()
+                    });
                 }
             }
 
@@ -118,7 +119,7 @@ namespace backend.Infra.Workers
                     .Where(x => x != null)
                     .ToList();
 
-                await using var conn = new NpgsqlConnection(_connString);
+                await using var conn = new NpgsqlConnection(_connString); // Move this to a using statement
                 await conn.OpenAsync();
 
                 // await PersistOnlineDevices(payloads);
