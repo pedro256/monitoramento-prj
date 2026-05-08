@@ -1,7 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { supabaseServer } from "@/lib/supabase/server";
-import { da } from "date-fns/locale";
 
 export const authOptions: NextAuthOptions = {
   providers: [

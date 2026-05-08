@@ -10,10 +10,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+
 AppProviders.Config(builder);
 var app = builder.Build();
 
 app.MapHub<DevicesHub>("/devicesHub");
+app.UseCors("AllowSpecificOrigin"); 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

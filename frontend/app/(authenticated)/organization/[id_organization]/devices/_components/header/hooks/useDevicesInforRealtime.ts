@@ -13,7 +13,7 @@ export function useDashboardRealtime(
     async function startConnection() {
       try {
 
-        const res = await fetch(`/api/realtime-token`, {
+        const res = await fetch(`/api/organizations/${orgId}/realtime`, {
           method: "POST",
           body: JSON.stringify({ organizationIdFromBody: orgId }),
           headers: {
