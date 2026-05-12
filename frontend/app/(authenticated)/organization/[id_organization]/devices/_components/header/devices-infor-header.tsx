@@ -16,8 +16,9 @@ export default function DevicesInforHeader({ orgId }:{orgId:string}) {
     const [criticalAlerts, setCriticalAlerts] = useState(0);
 
     useDashboardRealtime(orgId, (data) => {
-        if (data.type === "total") setTotalMachines(data.value);
-        if (data.type === "online") setOnlineMachines(data.value);
+        console.log(data);
+        if (data.type === "devices_online") setTotalMachines(data.value||0);
+        if (data.type === "devices_online") setOnlineMachines(data.value || 0);
         if (data.type === "alert") setCriticalAlerts(data.value);
     });
 
