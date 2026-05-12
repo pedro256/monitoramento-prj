@@ -36,7 +36,7 @@ function gerarAlertas(sensors) {
 }
 
 for (let i = 0; i < TOTAL_DISPOSITIVOS; i++) {
-  const deviceId = '88fb9404-902e-4f23-8707-bc5bfd2ee2df';
+  const deviceId = '8e867d6f-49a7-4a69-8142-ba1eafe066c4';
   const intervalo = 500 + Math.random() * 15000;
 
   const estado = {
