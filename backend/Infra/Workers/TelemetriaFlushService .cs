@@ -48,43 +48,40 @@ namespace backend.Infra.Workers
             var now = DateTime.UtcNow;
             var timeout = TimeSpan.FromMinutes(1);
 
+            // 1. Atualiza os dispositivos que acabaram de chegar
             var batch = _redis.CreateBatch();
-
-            foreach (var dev in payloads)
+            foreach (var dev in payloads.Where(d => d != null))
             {
-                var id = dev.DeviceId.ToString();
-
-                await batch.HashSetAsync(
-                    DevicesOnlineCachedKey,
-                    id,
-                    now.ToString("O")
-                );
+                batch.HashSetAsync(DevicesOnlineCachedKey, dev.DeviceId.ToString(), now.ToString("O"));
             }
-
             batch.Execute();
-            var allDevices = await _redis.HashGetAllAsync(DevicesOnlineCachedKey);
 
+            var allDevices = await _redis.HashGetAllAsync(DevicesOnlineCachedKey);
             var devicesOnline = new List<string>();
+
 
             foreach (var entry in allDevices)
             {
-                var deviceId = entry.Name!;
-                var lastSeen = DateTime.Parse(entry.Value!);
-
-                if ((now - lastSeen) <= timeout)
-                {
-                    devicesOnline.Add(deviceId);
-                }
-                else
-                {
-                    await _redis.HashDeleteAsync(DevicesOnlineCachedKey, deviceId);
-                }
+                
+                var deviceId = entry.Name.ToString();
+                 devicesOnline.Add(deviceId);
+                // if (DateTime.TryParse(entry.Value, out var lastSeen))
+                // {
+                //     if ((now - lastSeen) <= timeout)
+                //     {
+                //         devicesOnline.Add(deviceId);
+                //     }
+                //     else
+                //     {
+                //         await _redis.HashDeleteAsync(DevicesOnlineCachedKey, deviceId);
+                //     }
+                // }
             }
 
             using (var scope = _serviceProvider.CreateScope())
             {
                 var devRepo = scope.ServiceProvider.GetRequiredService<DeviceRepository>();
-                var realtimeNotifier = scope.ServiceProvider.GetRequiredService<RealtimeNotifier>();
+                var realtimeNotifier = scope.ServiceProvider.GetRequiredService<IRealtimeNotifier>();
                 var devicesOrg = await devRepo.GetDictOrganizationsByArrayDeviceId(devicesOnline);
 
                 var grouped = devicesOnline
@@ -96,20 +93,19 @@ namespace backend.Infra.Workers
                     await realtimeNotifier.SendToOrganization(group.Key, new
                     {
                         type = "devices_online",
-                        count = group.Count()
+                        value = group.Count()
                     });
                 }
             }
 
 
-            
+
         }
         private async Task FlushAsync()
         {
             try
             {
                 var items = await _redis.ListRangeAsync(TelemetricBufferCachedKey);
-                Console.WriteLine($"Quantidade de Dados: {items.Length}");
                 if (items.Length == 0) return;
                 await _redis.KeyDeleteAsync(TelemetricBufferCachedKey);
 
@@ -122,7 +118,7 @@ namespace backend.Infra.Workers
                 await using var conn = new NpgsqlConnection(_connString); // Move this to a using statement
                 await conn.OpenAsync();
 
-                // await PersistOnlineDevices(payloads);
+                await PersistOnlineDevices(payloads);
 
 
                 // Sensores em massa

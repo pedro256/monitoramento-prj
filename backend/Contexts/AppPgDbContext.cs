@@ -47,9 +47,9 @@ namespace backend.Contexts
                 .HasIndex(d => d.ApiToken)
                 .IsUnique();
 
-            modelBuilder.Entity<DeviceModel>()
-                .Property(d => d.Settings)
-                .HasColumnType("jsonb");
+            // modelBuilder.Entity<DeviceModel>()
+            //     .Property(d => d.Settings)
+            //     .HasColumnType("jsonb");
 
             // ALERTS
             modelBuilder.Entity<AlertModel>()

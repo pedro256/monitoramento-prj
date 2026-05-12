@@ -7,28 +7,30 @@ using System.Threading.Tasks;
 
 namespace backend.Models
 {
-    [Table("device")]
+    [Table("devices")]
     public class DeviceModel
     {
         [Key]
+        [Column("id")]
         public Guid Id { get; set; }
-
+        [Column("organization_id")]
         public Guid OrganizationId { get; set; }
 
         [Required]
+        [Column("name")]
         public string Name { get; set; } = "";
 
+        [Column("model")]
         public string? Model { get; set; }
+        [Column("location")]
         public string? Location { get; set; }
-
+        [Column("api_token")]
         public Guid ApiToken { get; set; }
-
+        [Column("_status")]
         public string Status { get; set; } = "offline";
-
+        [Column("last_heartbeat")]
         public DateTime? LastHeartbeat { get; set; }
-
-        public string Settings { get; set; } = "{}"; // jsonb
-
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
         // RELACIONAMENTO

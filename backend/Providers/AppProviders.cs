@@ -14,6 +14,7 @@ using StackExchange.Redis;
 using backend.Infra.Messaging;
 using backend.Configuration;
 using backend.Services.RealtimeToken;
+using backend.Infra.Realtime;
 namespace backend.Providers
 {
     public class AppProviders
@@ -78,13 +79,13 @@ namespace backend.Providers
                     {
                         var client = new HttpClient();
                         var jwks = client.GetStringAsync(
-                            supabaseUrl+"/auth/v1/.well-known/jwks.json"
+                            supabaseUrl + "/auth/v1/.well-known/jwks.json"
                         ).Result;
                         var keys = new JsonWebKeySet(jwks);
                         return keys.GetSigningKeys();
                     },
                     ValidateIssuer = true,
-                    ValidIssuer = supabaseUrl+"/auth/v1",
+                    ValidIssuer = supabaseUrl + "/auth/v1",
                     ValidateAudience = true,
                     ValidAudience = "authenticated",
                     ValidateLifetime = true,
@@ -109,12 +110,10 @@ namespace backend.Providers
                         var accessToken = context.Request.Query["access_token"];
                         var path = context.HttpContext.Request.Path;
 
-                        if (!string.IsNullOrEmpty(accessToken) &&
-                            path.StartsWithSegments("/devicesHub"))
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/devicesHub"))
                         {
                             context.Token = accessToken;
                         }
-
                         return Task.CompletedTask;
                     }
                 };
@@ -156,6 +155,7 @@ namespace backend.Providers
 
             #region SERVICES
             builder.Services.AddScoped<IRealtimeTokenService, RealtimeTokenService>();
+            builder.Services.AddScoped<IRealtimeNotifier,RealtimeNotifier>();
             #endregion
 
 
