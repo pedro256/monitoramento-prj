@@ -26,7 +26,9 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] string organizationIdFromBody)
         {
-            var userIdAuthenticated = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdAuthenticated =
+                User.FindFirst("sub")?.Value
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
 
             if (userIdAuthenticated==null)

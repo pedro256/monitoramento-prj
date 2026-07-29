@@ -53,7 +53,7 @@ namespace backend.Contexts
 
             // ALERTS
             modelBuilder.Entity<AlertModel>()
-                .ToTable("alerts");
+                .ToTable("telemetric_alerts");
 
             modelBuilder.Entity<AlertModel>()
                 .HasOne(a => a.Device)

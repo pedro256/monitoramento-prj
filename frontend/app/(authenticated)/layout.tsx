@@ -1,31 +1,38 @@
-import React from "react";
+"use client";
 
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import LayoutAuthenticatedBase from "./_components/layout-authenticated-base";
-import AuthProvider from "./_providers/auth-provider";
+import { useAuth } from "@/lib/auth/auth-context";
+import LoadingIco from "@/components/loading-ico";
 
-export default async function AuthenticatedLayout({
+export default function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
-  console.log(session)
-  if(!session){
-    return redirect("/unauthorized")
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/unauthorized");
+    }
+  }, [loading, user, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8">
+          <LoadingIco />
+        </div>
+      </div>
+    );
   }
-  if (session?.error === "TokenExpired") {
-    return redirect("/signout?reasion=TokenExpired");
+
+  if (!user) {
+    return null;
   }
-  return (
-    <main>
-      <AuthProvider>
-        <LayoutAuthenticatedBase>
-          {children}
-        </LayoutAuthenticatedBase>
-      </AuthProvider>
-    </main>
-  );
+
+  return <LayoutAuthenticatedBase>{children}</LayoutAuthenticatedBase>;
 }

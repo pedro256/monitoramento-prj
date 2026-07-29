@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
+import { fetchRealtimeToken } from "@/lib/api/auth";
 
 export function useDashboardRealtime(
   orgId: string,
@@ -12,23 +13,17 @@ export function useDashboardRealtime(
     if (!orgId) return;
 
     let connection: signalR.HubConnection | null = null;
-    let isMounted = true; 
+    let isMounted = true;
 
     const startConnection = async () => {
       try {
-        const res = await fetch(`/api/organizations/${orgId}/realtime`, {
-          method: "POST",
-          body: JSON.stringify({ organizationIdFromBody: orgId }),
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!res.ok || !isMounted) return;
-        const { token } = await res.json();
+        const { token } = await fetchRealtimeToken(orgId);
+        if (!isMounted) return;
 
         connection = new signalR.HubConnectionBuilder()
           .withUrl(`${process.env.NEXT_PUBLIC_BACKEND_URL}/devicesHub`, {
             accessTokenFactory: () => token,
-            transport: signalR.HttpTransportType.WebSockets 
+            transport: signalR.HttpTransportType.WebSockets,
           })
           .withAutomaticReconnect()
           .build();
@@ -39,12 +34,11 @@ export function useDashboardRealtime(
         });
 
         await connection.start();
-        
+
         if (isMounted) {
           console.log(`Connected to Hub. Joining group: ${orgId}`);
           await connection.invoke("JoinOrganization", orgId);
         }
-
       } catch (err) {
         console.error("SignalR Connection Error: ", err);
       }
@@ -52,13 +46,13 @@ export function useDashboardRealtime(
 
     startConnection();
 
-    // Cleanup: Fecha a conexão quando o componente desmonta ou orgId muda
     return () => {
       isMounted = false;
       if (connection) {
-        connection.stop()
+        connection
+          .stop()
           .then(() => console.log("SignalR Disconnected"))
-          .catch(err => console.error("Error stopping connection", err));
+          .catch((err) => console.error("Error stopping connection", err));
       }
     };
   }, [orgId]);

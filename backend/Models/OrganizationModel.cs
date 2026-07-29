@@ -8,21 +8,26 @@ using backend.Users.Models;
 
 namespace backend.Models
 {
-    [Table("organization")]
+    [Table("organizations")]
     public class OrganizationModel
     {
 
         [Key]
+        [Column("id")]
         public Guid Id { get; set; }
 
         [Required]
+        [Column("name")]
         public string Name { get; set; } = "";
 
+        [Column("email")]
         public string? Email { get; set; }
 
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
         // FK
+        [Column("user_id")]
         public Guid? UserId { get; set; }
 
         [ForeignKey(nameof(UserId))]

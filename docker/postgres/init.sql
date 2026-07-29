@@ -1,5 +1,4 @@
 -- Schema local alinhado ao uso em runtime (frontend BFF + backend EF/COPY)
--- Preferencialmente aplicado via docker/postgres/init.sql no compose.
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 

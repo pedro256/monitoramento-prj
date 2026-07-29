@@ -5,7 +5,7 @@ export default interface IDeviceItem {
   model: string;
   location: string | null;
   apiToken: string;
-  lastHeartbeat: string;
+  lastHeartbeat: string | null;
   createdAt: string;
-  status: number;
+  status: string;
 }

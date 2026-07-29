@@ -17,6 +17,7 @@ import IOrganizationItem from "@/shared/models/organization/IOrganizationItem";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import NewOrganizationModal from "./_components/new-organization-modal";
+import { listOrganizations } from "@/lib/api/organizations";
 
 
 
@@ -25,9 +26,12 @@ export default function OrganizationsPage() {
   const [organizations, setOrganizations] = useState<IOrganizationItem[]>([])
 
   async function buscarOrganizacoes() {
-    const request = await fetch("api/organizations")
-    const _organizations: IOrganizationItem[] = await request.json();
-    setOrganizations(_organizations)
+    try {
+      const _organizations = await listOrganizations();
+      setOrganizations(_organizations);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   useEffect(() => {

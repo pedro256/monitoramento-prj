@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { signOut } from "next-auth/react";
+import { useAuth } from "@/lib/auth/auth-context";
 
 import { useState } from "react";
 import {
@@ -18,6 +18,7 @@ export default function SidebarOrganization() {
 
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const pathname = usePathname();
+    const { logout } = useAuth();
 
     const navigation = [
         { name: "Visão Geral", href: `dashboard`, icon: Home },
@@ -70,7 +71,7 @@ export default function SidebarOrganization() {
                     </nav>
 
                     <div className="p-4 border-t border-border">
-                        <div className="hover:bg-destructive border border-destructive rounded-lg p-2" onClick={() => signOut()}>
+                        <div className="hover:bg-destructive border border-destructive rounded-lg p-2 cursor-pointer" onClick={logout}>
                             <p className="text-xs text-muded hover:text-destructive-foreground mb-1 text-center">SAIR</p>
                         </div>
                     </div>

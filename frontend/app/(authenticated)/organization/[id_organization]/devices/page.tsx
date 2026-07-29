@@ -27,6 +27,7 @@ import NewDeviceDialog from "./_components/new-device-dialog";
 import { useParams } from "next/navigation";
 import EditDeviceDialog from "./_components/edit-device-dialog";
 import DevicesInforHeader from "./_components/header/devices-infor-header";
+import { deleteDevice, listDevices } from "@/lib/api/devices";
 
 
 export default function DevicesPage() {
@@ -36,17 +37,21 @@ export default function DevicesPage() {
     [key: string]: boolean;
   }>({});
   const params = useParams();
-  const idOrganization = params.id_organization;
+  const idOrganization = params.id_organization as string;
 
   async function buscarDispositivos() {
-    const req = await fetch(`/api/organizations/${idOrganization}/devices`);
-    const _devices: IDeviceItem[] = await req.json();
-    setDevices(_devices)
+    if (!idOrganization) return;
+    try {
+      const _devices = await listDevices(idOrganization);
+      setDevices(_devices);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   useEffect(() => {
-    buscarDispositivos()
-  }, [])
+    buscarDispositivos();
+  }, [idOrganization]);
 
 
   const toggleTokenVisibility = (id: string) => {
@@ -63,22 +68,21 @@ export default function DevicesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja remover este dispositivo?")) return;
 
-    const res = await fetch(`/api/organizations/${idOrganization}/devices?id=${id}`, {
-      method: "DELETE"
-    });
-
-    if (res.ok) buscarDispositivos();
+    try {
+      await deleteDevice(idOrganization, id);
+      await buscarDispositivos();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
 
-  const getStatusBadge = (status: number) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      // case 1:
-      //   return "bg-emerald-500/10 text-primary border-emerald-500/20";
-      // case 2:
-      //   return "bg-gray-500/10 text-text-muted border-gray-500/20";
-      // case 3:
-      //   return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+      case "online":
+        return "bg-emerald-500/10 text-primary border-emerald-500/20";
+      case "maintenance":
+        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
       default:
         return "bg-muted text-text-muted border-text-muted/20";
     }
@@ -141,9 +145,9 @@ export default function DevicesPage() {
                         className={cn("border", getStatusBadge(device.status))}
                       >
                         <div className="w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
-                        {device.status === 1
+                        {device.status === "online"
                           ? "Online"
-                          : device.status === 2
+                          : device.status === "maintenance"
                             ? "Manutenção"
                             : "Offline"}
                       </Badge>

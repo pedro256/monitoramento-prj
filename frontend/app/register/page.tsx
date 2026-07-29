@@ -29,6 +29,10 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import LoadingIco from "@/components/loading-ico";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/auth-context";
+import { toast } from "sonner";
+import { ApiError } from "@/lib/api/client";
+
 const registerSchema = z
   .object({
     name: z.string().min(2, "Identificação mínima requerida"),
@@ -43,7 +47,8 @@ const registerSchema = z
 
 export default function TechRegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const route = useRouter()
+  const router = useRouter();
+  const { register } = useAuth();
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -52,25 +57,16 @@ export default function TechRegisterPage() {
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setIsSubmitting(true);
-    // Simulando uplink de dados
-    await fetch("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-      }),
-    }).finally(()=>{
-       setIsSubmitting(false);
-       route.push("/auth")
-    }).catch((e)=>{
-      console.error("error: ",e)
-    })
-
-    // setTimeout(() => {
-    //   console.log("Credenciais transmitidas:", values);
-    //   setIsSubmitting(false);
-    // }, 2000);
+    try {
+      await register(values.name, values.email, values.password);
+      router.push("/organization");
+    } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : "Erro ao criar usuário";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (

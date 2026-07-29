@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import { da } from "date-fns/locale";
+import { createDevice } from "@/lib/api/devices";
 
 
 const deviceSchema = z.object({
@@ -33,7 +33,7 @@ export default function NewDeviceDialog() {
   const [isLoading, setIsLoading] = useState(false);
 
   const params = useParams();
-  const idOrganization = params.id_organization;
+  const idOrganization = params.id_organization as string;
 
   const {
     register,
@@ -48,18 +48,11 @@ export default function NewDeviceDialog() {
   const onSubmit = async (data: DeviceFormData) => {
     setIsLoading(true);
 
-    fetch(`/api/organizations/${idOrganization}/devices`,{
-      method:'POST',
-      body:JSON.stringify({
-        name: data.name,
-        model: data.model
-      })
-    })
-    
-    console.log("Enviando dados:", data);
-    
     try {
-      
+      await createDevice(idOrganization, {
+        name: data.name,
+        model: data.model,
+      });
       reset();
       setIsDialogOpen(false);
     } catch (error) {

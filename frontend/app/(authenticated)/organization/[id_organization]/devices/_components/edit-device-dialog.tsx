@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import IDeviceItem from "@/shared/models/devices/IDeviceItem";
+import { updateDevice } from "@/lib/api/devices";
 
 interface EditDeviceDialogProps {
   device: IDeviceItem;
@@ -29,14 +30,14 @@ export default function EditDeviceDialog({ device, isOpen, onClose, onSuccess }:
   const handleUpdate = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/organizations/${device.organizationId}/devices`, {
-        method: "PATCH",
-        body: JSON.stringify({ id: device.id, ...formData }),
+      await updateDevice(device.organizationId, {
+        id: device.id,
+        name: formData.name,
+        model: formData.model,
+        location: formData.location,
       });
-      if (res.ok) {
-        onSuccess();
-        onClose();
-      }
+      onSuccess();
+      onClose();
     } catch (error) {
       console.error("Erro ao atualizar:", error);
     } finally {

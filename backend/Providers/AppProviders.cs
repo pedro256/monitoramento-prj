@@ -14,6 +14,7 @@ using StackExchange.Redis;
 using backend.Infra.Messaging;
 using backend.Configuration;
 using backend.Services.RealtimeToken;
+using backend.Services.Auth;
 using backend.Infra.Realtime;
 namespace backend.Providers
 {
@@ -31,6 +32,9 @@ namespace backend.Providers
             builder.Services.Configure<RealtimeJwtOptions>(
                 builder.Configuration.GetSection("RealtimeJwt")
                 );
+            builder.Services.Configure<AuthJwtOptions>(
+                builder.Configuration.GetSection("AuthJwt")
+                );
             #endregion
 
             #region REDIS
@@ -42,12 +46,9 @@ namespace backend.Providers
             #endregion
 
             #region AUTH JWT
-            var supabaseUrl = builder.Configuration["SupabaseStrings:Url"];
-            string supabaseJwtSecret = builder.Configuration["SupabaseStrings:JwtSecret"] ?? "";
-
+            var authJwt = builder.Configuration.GetSection("AuthJwt").Get<AuthJwtOptions>()
+                ?? new AuthJwtOptions();
             string realtimeJwtSecret = builder.Configuration["RealtimeJwt:Key"] ?? "";
-
-
 
             builder.Services.AddAuthentication(options =>
             {
@@ -71,24 +72,19 @@ namespace backend.Providers
                     }
                 };
 
-                options.RequireHttpsMetadata = true;
+                options.RequireHttpsMetadata = false;
+                options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
-                    {
-                        var client = new HttpClient();
-                        var jwks = client.GetStringAsync(
-                            supabaseUrl + "/auth/v1/.well-known/jwks.json"
-                        ).Result;
-                        var keys = new JsonWebKeySet(jwks);
-                        return keys.GetSigningKeys();
-                    },
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(authJwt.Key)),
                     ValidateIssuer = true,
-                    ValidIssuer = supabaseUrl + "/auth/v1",
+                    ValidIssuer = authJwt.Issuer,
                     ValidateAudience = true,
-                    ValidAudience = "authenticated",
+                    ValidAudience = authJwt.Audience,
                     ValidateLifetime = true,
+                    NameClaimType = "sub",
                 };
             })
             .AddJwtBearer("Realtime", options =>
@@ -154,6 +150,7 @@ namespace backend.Providers
             #endregion
 
             #region SERVICES
+            builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IRealtimeTokenService, RealtimeTokenService>();
             builder.Services.AddScoped<IRealtimeNotifier,RealtimeNotifier>();
             #endregion

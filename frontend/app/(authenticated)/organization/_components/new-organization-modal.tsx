@@ -24,6 +24,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { createOrganization } from "@/lib/api/organizations";
+import { ApiError } from "@/lib/api/client";
 
 const orgSchema = z.object({
   name: z.string().min(3, "Nome da organização deve ter ao menos 3 caracteres"),
@@ -48,25 +50,16 @@ export default function NewOrganizationModal({onNewOrganization}:IProps) {
   async function onSubmit(values: OrgFormValues) {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/organizations", {
-        method: "POST",
-        body: JSON.stringify({
-          name: values.name,
-          email: values.email,
-        }),
+      await createOrganization({
+        name: values.name,
+        email: values.email,
       });
-
-      if (response.status != 200) {
-        console.error("Organização não cadastrada !");
-      } else {
-        console.log("respostas: ", await response.json());
-      }
-      onNewOrganization()
+      onNewOrganization();
       setIsDialogOpen(false);
       form.reset();
-      
-    } catch (e: any) {
-      toast("Erro ao inserir ...", e.message);
+    } catch (e: unknown) {
+      const message = e instanceof ApiError ? e.message : "Erro ao inserir";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

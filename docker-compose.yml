@@ -1,4 +1,23 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-monitoramento-prj
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: monitoramento
+      POSTGRES_PASSWORD: monitoramento
+      POSTGRES_DB: monitoramento
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U monitoramento -d monitoramento"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   redis-monitoramento-prj:
       image: redis:7-alpine
       container_name: redis-monitoramento-prj
@@ -19,3 +38,4 @@ services:
       - ./docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
 volumes:
   redis_data:
+  postgres_data:

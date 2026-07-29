@@ -18,11 +18,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth/auth-context";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import LoadingIco from "@/components/loading-ico";
-import { signIn } from "next-auth/react"
-
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { ApiError } from "@/lib/api/client";
 
 const loginSchema = z.object({
   email: z.string().email("Protocolo de e-mail inválido"),
@@ -31,6 +33,8 @@ const loginSchema = z.object({
 
 export default function TechLoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -42,19 +46,16 @@ export default function TechLoginPage() {
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true);
-
-    await signIn("credentials", {
-      email:values.email,
-      password:values.password,
-      redirect: true,
-      callbackUrl: "/organization",
-    });
-
-    // // Simulação de autenticação
-    // setTimeout(() => {
-    //   console.log("Autenticação solicitada:", values);
-    //   setIsSubmitting(false);
-    // }, 2000);
+    try {
+      await login(values.email, values.password);
+      router.push("/organization");
+    } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : "Falha ao autenticar";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
