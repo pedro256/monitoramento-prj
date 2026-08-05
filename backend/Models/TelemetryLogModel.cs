@@ -11,17 +11,26 @@ namespace backend.Models
     public class TelemetryLogModel
     {
         [Key]
+        [Column("id")]
         public long Id { get; set; }
 
+        [Column("device_id")]
         public Guid? DeviceId { get; set; }
 
+        [Column("cycle_count")]
         public int? CycleCount { get; set; }
 
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
-        public String Tag { get; set; }
-        public Decimal Value { get; set; }
-        public String Unity { get; set; }
+        [Column("tag")]
+        public string Tag { get; set; } = "";
+
+        [Column("value")]
+        public decimal Value { get; set; }
+
+        [Column("unity")]
+        public string Unity { get; set; } = "";
 
         // RELACIONAMENTO
         [ForeignKey(nameof(DeviceId))]

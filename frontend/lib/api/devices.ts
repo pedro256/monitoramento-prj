@@ -1,8 +1,37 @@
 import { apiFetch } from "@/lib/api/client";
-import IDeviceItem from "@/shared/models/devices/IDeviceItem";
+import IDeviceItem, {
+  ITelemetryAlert,
+  ITelemetryLog,
+} from "@/shared/models/devices/IDeviceItem";
 
 export async function listDevices(organizationId: string) {
   return apiFetch<IDeviceItem[]>(`/api/organizations/${organizationId}/devices`);
+}
+
+export async function getDevice(organizationId: string, deviceId: string) {
+  return apiFetch<IDeviceItem>(
+    `/api/organizations/${organizationId}/devices/${deviceId}`,
+  );
+}
+
+export async function listDeviceAlerts(
+  organizationId: string,
+  deviceId: string,
+  limit = 50,
+) {
+  return apiFetch<ITelemetryAlert[]>(
+    `/api/organizations/${organizationId}/devices/${deviceId}/alerts?limit=${limit}`,
+  );
+}
+
+export async function listDeviceTelemetry(
+  organizationId: string,
+  deviceId: string,
+  pageSize = 50,
+) {
+  return apiFetch<ITelemetryLog[]>(
+    `/api/organizations/${organizationId}/devices/${deviceId}/telemetry?page=1&pageSize=${pageSize}`,
+  );
 }
 
 export async function createDevice(

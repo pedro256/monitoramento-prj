@@ -23,7 +23,7 @@ export default function EditDeviceDialog({ device, isOpen, onClose, onSuccess }:
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: device.name,
-    model: device.model,
+    model: device.model || "",
     location: device.location || "",
   });
 
@@ -33,7 +33,7 @@ export default function EditDeviceDialog({ device, isOpen, onClose, onSuccess }:
       await updateDevice(device.organizationId, {
         id: device.id,
         name: formData.name,
-        model: formData.model,
+        model: formData.model || undefined,
         location: formData.location,
       });
       onSuccess();

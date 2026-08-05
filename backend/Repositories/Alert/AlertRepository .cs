@@ -13,10 +13,12 @@ namespace backend.Repositories.Alert
     {
         public AlertRepository(AppPgDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<AlertModel>> GetByDeviceAsync(Guid deviceId)
+        public async Task<IEnumerable<AlertModel>> GetByDeviceAsync(Guid deviceId, int limit = 50)
         {
             return await _context.Alerts
                 .Where(a => a.DeviceId == deviceId)
+                .OrderByDescending(a => a.CreatedAt)
+                .Take(limit)
                 .ToListAsync();
         }
 

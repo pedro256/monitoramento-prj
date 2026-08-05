@@ -11,18 +11,24 @@ namespace backend.Models
     public class AlertModel
     {
         [Key]
+        [Column("id")]
         public Guid Id { get; set; }
 
+        [Column("device_id")]
         public Guid? DeviceId { get; set; }
 
         [Required]
+        [Column("severity")]
         public string Severity { get; set; } = ""; // info | warning | critical
 
         [Required]
+        [Column("message")]
         public string Message { get; set; } = "";
 
+        [Column("resolved")]
         public bool Resolved { get; set; } = false;
 
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
         // RELACIONAMENTO

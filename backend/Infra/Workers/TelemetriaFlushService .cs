@@ -93,7 +93,9 @@ namespace backend.Infra.Workers
                     await realtimeNotifier.SendToOrganization(group.Key, new
                     {
                         type = "devices_online",
-                        value = group.Count()
+                        value = group.Count(),
+                        deviceIds = group.ToArray(),
+                        at = DateTime.UtcNow
                     });
                 }
             }
@@ -101,6 +103,57 @@ namespace backend.Infra.Workers
 
 
         }
+
+        private async Task NotifyFlushEvents(List<DevicesPayload?> payloads)
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var devRepo = scope.ServiceProvider.GetRequiredService<DeviceRepository>();
+            var realtimeNotifier = scope.ServiceProvider.GetRequiredService<IRealtimeNotifier>();
+
+            var validPayloads = payloads.Where(p => p != null).Cast<DevicesPayload>().ToList();
+            if (validPayloads.Count == 0) return;
+
+            var deviceIds = validPayloads.Select(p => p.DeviceId.ToString()).Distinct().ToList();
+            var devicesOrg = await devRepo.GetDictOrganizationsByArrayDeviceId(deviceIds);
+
+            var byOrg = validPayloads
+                .Where(p => devicesOrg.ContainsKey(p.DeviceId.ToString()))
+                .GroupBy(p => devicesOrg[p.DeviceId.ToString()]);
+
+            foreach (var group in byOrg)
+            {
+                var orgPayloads = group.ToList();
+                var sensorsCount = orgPayloads.Sum(p => p.Sensors?.Count ?? 0);
+                var alertsCount = orgPayloads.Sum(p => p.Alerts?.Count ?? 0);
+
+                await realtimeNotifier.SendToOrganization(group.Key, new
+                {
+                    type = "telemetry_flush",
+                    payloads = orgPayloads.Count,
+                    sensors = sensorsCount,
+                    alerts = alertsCount,
+                    at = DateTime.UtcNow
+                });
+
+                foreach (var payload in orgPayloads)
+                {
+                    foreach (var alert in payload.Alerts ?? [])
+                    {
+                        await realtimeNotifier.SendToOrganization(group.Key, new
+                        {
+                            type = "alert",
+                            deviceId = payload.DeviceId,
+                            severity = alert.Severity,
+                            message = alert.Description,
+                            code = alert.Cod,
+                            resolved = alert.Resolved,
+                            at = payload.Timestamp
+                        });
+                    }
+                }
+            }
+        }
+
         private async Task FlushAsync()
         {
             try
@@ -158,6 +211,8 @@ namespace backend.Infra.Workers
                         }
                     await writer.CompleteAsync();
                 }
+
+                await NotifyFlushEvents(payloads);
 
                 Console.WriteLine($"[Flush] {payloads.Count} payloads inseridos nas tabelas.");
             }

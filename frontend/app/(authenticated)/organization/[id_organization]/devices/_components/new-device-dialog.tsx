@@ -27,8 +27,11 @@ const deviceSchema = z.object({
 });
 type DeviceFormData = z.infer<typeof deviceSchema>;
 
+interface NewDeviceDialogProps {
+  onSuccess?: () => void;
+}
 
-export default function NewDeviceDialog() {
+export default function NewDeviceDialog({ onSuccess }: NewDeviceDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,6 +58,7 @@ export default function NewDeviceDialog() {
       });
       reset();
       setIsDialogOpen(false);
+      onSuccess?.();
     } catch (error) {
       console.error(error);
     } finally {

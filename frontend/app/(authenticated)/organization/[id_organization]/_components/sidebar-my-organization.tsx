@@ -1,7 +1,7 @@
 
 'use client';
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/auth-context";
 
@@ -10,6 +10,7 @@ import {
     Activity,
     Cpu,
     Chrome as Home,
+    LayoutDashboard,
     X
 } from "lucide-react";
 
@@ -19,11 +20,12 @@ export default function SidebarOrganization() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const pathname = usePathname();
     const { logout } = useAuth();
+    const { id_organization } = useParams();
 
     const navigation = [
-        { name: "Visão Geral", href: `dashboard`, icon: Home },
-        { name: "Dispositivos", href: `devices`, icon: Cpu },
-        { name: "Monitoramento", href: `monitoring`, icon: Activity },
+        { name: "Visão Geral", href: `/organization/${id_organization}/dashboard`, icon: LayoutDashboard },
+        { name: "Dispositivos", href: `/organization/${id_organization}/devices`, icon: Cpu },
+        { name: "Monitoramento", href: `/organization/${id_organization}/monitoring`, icon: Activity },
         // { name: "Configurações", href: "/settings", icon: Settings },
     ];
 

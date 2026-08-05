@@ -8,10 +8,10 @@ import {
   Trash2,
   CreditCard as Edit,
   Activity,
+  MapPin,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
 import {
   Table,
   TableBody,
@@ -24,11 +24,18 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import IDeviceItem from "@/shared/models/devices/IDeviceItem";
 import NewDeviceDialog from "./_components/new-device-dialog";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import EditDeviceDialog from "./_components/edit-device-dialog";
 import DevicesInforHeader from "./_components/header/devices-infor-header";
 import { deleteDevice, listDevices } from "@/lib/api/devices";
+import Link from "next/link";
 
+function formatDate(value: string | null | undefined) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("pt-BR");
+}
 
 export default function DevicesPage() {
   const [devices, setDevices] = useState<IDeviceItem[]>([]);
@@ -37,6 +44,7 @@ export default function DevicesPage() {
     [key: string]: boolean;
   }>({});
   const params = useParams();
+  const router = useRouter();
   const idOrganization = params.id_organization as string;
 
   async function buscarDispositivos() {
@@ -53,7 +61,6 @@ export default function DevicesPage() {
     buscarDispositivos();
   }, [idOrganization]);
 
-
   const toggleTokenVisibility = (id: string) => {
     setVisibleTokens((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -65,6 +72,7 @@ export default function DevicesPage() {
   const maskToken = (token: string) => {
     return token.substring(0, 8) + "••••••••••••••••";
   };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja remover este dispositivo?")) return;
 
@@ -75,7 +83,6 @@ export default function DevicesPage() {
       console.error(error);
     }
   };
-
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -88,6 +95,12 @@ export default function DevicesPage() {
     }
   };
 
+  const statusLabel = (status: string) => {
+    if (status === "online") return "Online";
+    if (status === "maintenance") return "Manutenção";
+    return "Offline";
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -97,15 +110,10 @@ export default function DevicesPage() {
             Configure e gerencie suas máquinas industriais
           </p>
         </div>
-        <div>
-
-          <NewDeviceDialog />
-        </div>
-
+        <NewDeviceDialog onSuccess={buscarDispositivos} />
       </div>
-      <div>
-        <DevicesInforHeader orgId={idOrganization?.toString() || ""} />
-      </div>
+
+      <DevicesInforHeader orgId={idOrganization?.toString() || ""} />
 
       <Card className="bg-card border-border">
         <CardHeader>
@@ -120,12 +128,12 @@ export default function DevicesPage() {
                 <TableRow className="border-border hover:bg-transparent font-semibold">
                   <TableHead>Nome</TableHead>
                   <TableHead>Modelo</TableHead>
+                  <TableHead>Localização</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>API Token</TableHead>
                   <TableHead>Última Conexão</TableHead>
-                  <TableHead className=" font-semibold text-right">
-                    Ações
-                  </TableHead>
+                  <TableHead>Criado em</TableHead>
+                  <TableHead className="font-semibold text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -135,21 +143,28 @@ export default function DevicesPage() {
                     className="border-border hover:bg-primary/10"
                   >
                     <TableCell className="font-medium text-gray-100">
-                      {device.name}
+                      <Link
+                        href={`/organization/${idOrganization}/devices/${device.id}/monitor`}
+                        className="hover:text-primary hover:underline"
+                      >
+                        {device.name}
+                      </Link>
                     </TableCell>
                     <TableCell className="text-text-muted">
-                      {device.model}
+                      {device.model || "—"}
+                    </TableCell>
+                    <TableCell className="text-text-muted">
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {device.location || "—"}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge
                         className={cn("border", getStatusBadge(device.status))}
                       >
                         <div className="w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
-                        {device.status === "online"
-                          ? "Online"
-                          : device.status === "maintenance"
-                            ? "Manutenção"
-                            : "Offline"}
+                        {statusLabel(device.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -175,22 +190,30 @@ export default function DevicesPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => copyToken(device.apiToken)}
-                          className=" h-8 w-8 p-0 text-text-muted hover:text-primary"
+                          className="h-8 w-8 p-0 text-text-muted hover:text-primary"
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
-
                       </div>
                     </TableCell>
                     <TableCell className="text-text-muted text-sm">
-                      {device.lastHeartbeat}
+                      {formatDate(device.lastHeartbeat)}
+                    </TableCell>
+                    <TableCell className="text-text-muted text-sm">
+                      {formatDate(device.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           size="sm"
                           variant="ghost"
-                          className=" h-8 w-8 p-0 text-text-muted hover:text-primary"
+                          title="Monitorar"
+                          onClick={() =>
+                            router.push(
+                              `/organization/${idOrganization}/devices/${device.id}/monitor`,
+                            )
+                          }
+                          className="h-8 w-8 p-0 text-text-muted hover:text-primary"
                         >
                           <Activity className="w-4 h-4" />
                         </Button>
@@ -198,7 +221,7 @@ export default function DevicesPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => setDeviceToEdit(device)}
-                          className="h-8 w-8 p-0 text-text-secondary  hover:text-primary-200 hover:bg-primary-800"
+                          className="h-8 w-8 p-0 text-text-secondary hover:text-primary-200 hover:bg-primary-800"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -210,11 +233,20 @@ export default function DevicesPage() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
-
                       </div>
                     </TableCell>
                   </TableRow>
                 ))}
+                {devices.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="text-center text-text-secondary py-10"
+                    >
+                      Nenhum dispositivo cadastrado.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

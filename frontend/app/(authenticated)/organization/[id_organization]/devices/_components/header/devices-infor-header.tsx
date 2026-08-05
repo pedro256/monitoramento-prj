@@ -1,27 +1,37 @@
-
 'use client';
 import { Activity, TriangleAlert as AlertTriangle, Cpu, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDashboardRealtime } from './hooks/useDevicesInforRealtime';
-import { useState } from 'react';
+import { useOrganizationRealtime } from '@/hooks/useOrganizationRealtime';
+import { useEffect, useState } from 'react';
+import { listDevices } from '@/lib/api/devices';
 
 export default function DevicesInforHeader({ orgId }:{orgId:string}) {
-
-    if(!orgId){
-        return undefined;
-    }
-
     const [totalMachines, setTotalMachines] = useState(0);
     const [onlineMachines, setOnlineMachines] = useState(0);
     const [criticalAlerts, setCriticalAlerts] = useState(0);
 
-    useDashboardRealtime(orgId, (data) => {
-        console.log(data);
-        if (data.type === "devices_online") setTotalMachines(data.value||0);
-        if (data.type === "devices_online") setOnlineMachines(data.value || 0);
-        if (data.type === "alert") setCriticalAlerts(data.value);
+    useEffect(() => {
+        if (!orgId) return;
+        listDevices(orgId)
+            .then((devices) => {
+                setTotalMachines(devices.length);
+                setOnlineMachines(devices.filter((d) => d.status === "online").length);
+            })
+            .catch(console.error);
+    }, [orgId]);
+
+    useOrganizationRealtime(orgId, (data: any) => {
+        if (data?.type === "devices_online") {
+            setOnlineMachines(Number(data.value) || 0);
+        }
+        if (data?.type === "alert" && String(data.severity).toLowerCase() === "critical" && !data.resolved) {
+            setCriticalAlerts((prev) => prev + 1);
+        }
     });
 
+    if (!orgId) {
+        return null;
+    }
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -47,7 +57,7 @@ export default function DevicesInforHeader({ orgId }:{orgId:string}) {
                 <CardContent>
                     <div className="text-3xl font-bold text-gray-100">{onlineMachines}</div>
                     <p className="text-xs text-gray-400 mt-1">
-                        {Math.round((onlineMachines / totalMachines) * 100)}% do total
+                        {totalMachines > 0 ? Math.round((onlineMachines / totalMachines) * 100) : 0}% do total
                     </p>
                 </CardContent>
             </Card>
@@ -62,9 +72,6 @@ export default function DevicesInforHeader({ orgId }:{orgId:string}) {
                     <p className="text-xs text-red-400 mt-1">Requer atenção imediata</p>
                 </CardContent>
             </Card>
-
-
         </div>
-
     )
 }
